@@ -9,8 +9,6 @@
 // басты бетте тек екі дизайн бар: ақ (paper) және қара (night)
 (function(){var t=document.documentElement.getAttribute("data-theme");if(t==="forest")setTheme("paper");else if(t==="violet")setTheme("night");})();
 </script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Literata:wght@600;700&family=Noto+Sans:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/app.css">
 <link rel="stylesheet" href="css/landing.css">
 </head>
@@ -47,19 +45,13 @@
         <li data-i18n="l.pill3">Онлайн кабинет</li>
       </ul>
     </div>
-    <div class="hero-3d">
-      <div class="stage" id="stage" aria-hidden="true">
-        <div class="world"><div class="scene" id="scene" data-spin="1"></div></div>
-      </div>
-    </div>
+    <aside class="admission-board" aria-label="Қабылдау / Приём">
+      <div class="board-top"><span data-i18n="brand">Narxoz колледжі</span><span>2026 / 27</span></div>
+      <div class="board-monogram" aria-hidden="true">N<svg viewBox="0 0 80 80" width="90" height="90" fill="none" aria-hidden="true"><path d="M16 64 64 16M16 16h48v48" stroke="currentColor" stroke-width="3"/></svg></div>
+      <div class="board-bottom"><span data-i18n="idx.s1">Тіркелу</span><span data-i18n="idx.s2">Өтініш</span><span data-i18n="idx.s3">Құжаттар</span><span data-i18n="idx.s4">Шешім</span></div>
+    </aside>
   </section>
 
-  <div class="stats">
-    <div class="card stat"><b>6</b><span data-i18n="st.prog">бағдарлама</span></div>
-    <div class="card stat"><b>100+</b><span data-i18n="st.grant">грант орны</span></div>
-    <div class="card stat"><b>3–5</b><span data-i18n="st.review">күн тексеру</span></div>
-    <div class="card stat"><b>15</b><span data-i18n="st.support">мин қолдау</span></div>
-  </div>
 
   <section class="sect">
     <h2 id="programs" data-i18n="nav.programs">Бағдарламалар</h2>
@@ -86,9 +78,10 @@
     <h2 id="faq" data-i18n="idx.faq">Жиі қойылатын сұрақтар</h2>
     <section class="card faq" id="faqBox"></section>
   </section>
+  <footer class="site-footer"><span data-i18n="brand">Narxoz колледжі</span><span>2026 / 27</span><a href="/login.html" data-i18n="login">Кіру</a></footer>
 </main>
 <script src="js/api.js"></script>
-<script src="js/scene.js"></script>
+
 <script>
 (function(){
   let data=null, failed=false;

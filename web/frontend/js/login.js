@@ -25,6 +25,7 @@
     setTimeout(() => (reg ? $("#r-name") : $("#login")).focus(), 500);
   }
   if (location.hash === "#register") show(true);
+  addEventListener("hashchange", () => show(location.hash === "#register"));
   $("#toReg").onclick = () => show(true);
   $("#toLogin").onclick = () => show(false);
 

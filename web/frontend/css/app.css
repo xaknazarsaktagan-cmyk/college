@@ -67,3 +67,8 @@
 .admin-table th,.admin-table td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:top}
 .admin-table th{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.04em}
 .drawer{margin-top:10px;background:var(--paper-2);border-radius:12px;padding:12px}
+.next{border-left-width:3px;border-radius:8px;padding:20px 24px}.next h2{font-size:21px}.next p{font-size:14px}
+.who{font-size:13px;font-weight:500}.welcome{margin-bottom:28px}.welcome h1{font-weight:550}
+.help{border-radius:6px;font-weight:500;box-shadow:none;font-size:13px}.stat b{font-weight:550}
+.admin-table th{letter-spacing:.03em}.drawer{border-radius:6px}.docs-head{gap:12px;flex-wrap:wrap}
+@media(max-width:720px){.toast{bottom:90px}.site-header:has([data-tab]) .nav{display:flex}.site-header:has([data-tab]) .tools{margin-left:0}.grid.home>*{min-width:0}.nl li{grid-template-columns:10px minmax(0,1fr)}.nl li>.btn{grid-column:2}.sum dd,.dmeta,.ticket p{overflow-wrap:anywhere}.tabbar a{font-weight:500;font-size:11px}.progs{grid-template-columns:minmax(0,1fr)}}
