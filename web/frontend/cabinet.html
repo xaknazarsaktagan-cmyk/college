@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title data-i18n="c.title">Абитуриент кабинеті</title>
+<script src="js/i18n.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Literata:wght@600;700&family=Noto+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<a class="skip" href="#main" data-i18n="skip">Негізгі мазмұнға өту</a>
+<header class="site-header">
+  <a class="brand" href="#home" data-i18n="brand">Narxoz колледжі</a>
+  <nav class="nav" data-i18n-aria="nav.main" aria-label="Негізгі навигация">
+    <a href="#home" data-nav="home" data-i18n="nav.home">Басты</a>
+    <a href="#application" data-nav="application" data-i18n="nav.application">Өтінішім</a>
+    <a href="#docs" data-nav="docs" data-i18n="nav.docs">Құжаттар</a>
+    <a href="#programs" data-nav="programs" data-i18n="nav.programs">Бағдарламалар</a>
+    <a href="#notes" data-nav="notes"><span data-i18n="nav.notes">Хабарлар</span> <span class="badge" id="noteCount" hidden>0</span></a>
+    <a href="#help" data-nav="help" data-i18n="nav.help">Қолдау</a>
+    <a href="#profile" data-nav="profile" data-i18n="nav.profile">Профиль</a>
+  </nav>
+  <div class="tools">
+    <div class="ctl" data-ctl></div>
+    <a class="avatar" id="avatar" href="#profile">А</a>
+  </div>
+</header>
+<main id="main" class="wrap">
+  <div data-view="home">
+    <section class="welcome">
+      <p class="who" id="who"></p>
+      <h1 id="headline"></h1>
+      <p class="prog" id="prog"></p>
+    </section>
+    <section class="next" id="next"></section>
+    <div class="grid home">
+      <section class="card tracker"><h2 data-i18n="c.tracker">Өтініш жолы</h2><ol id="steps"></ol></section>
+      <div class="stack">
+        <section class="card">
+          <div class="docs-head"><h2 data-i18n="c.docs">Құжаттар</h2><span class="count" id="hCount"></span></div>
+          <div class="bar"><i id="hBar"></i></div>
+          <a href="#docs" data-i18n="c.openAllDocs">Барлық құжаттарды ашу</a>
+        </section>
+        <section class="card"><h2 data-i18n="c.dates">Маңызды күндер</h2><ul class="dates" id="dates"></ul></section>
+        <section class="card"><h2 data-i18n="c.lastNotes">Соңғы хабарлар</h2><ul class="notes" id="noteList"></ul><a href="#notes" data-i18n="c.allNotes">Барлық хабарлар</a></section>
+      </div>
+    </div>
+  </div>
+  <div data-view="application" hidden>
+    <h1 data-i18n="nav.application">Өтінішім</h1>
+    <section class="card" id="appBox"></section>
+  </div>
+  <div data-view="docs" hidden>
+    <h1 data-i18n="c.docs">Құжаттар</h1>
+    <section class="card">
+      <div class="docs-head"><h2 data-i18n="d.list">Құжаттар тізімі</h2><span id="docCount" class="count"></span></div>
+      <div class="bar" role="progressbar" id="bar"><i id="barFill"></i></div>
+      <p class="empty" data-i18n="d.formats">Форматтар: PDF, JPG, PNG. Көлемі 5 МБ дейін.</p>
+      <ul id="docList"></ul>
+    </section>
+  </div>
+  <div data-view="programs" hidden>
+    <h1 data-i18n="nav.programs">Бағдарламалар</h1>
+    <div class="progs" id="progCards"></div>
+  </div>
+  <div data-view="notes" hidden>
+    <div class="vhead"><h1 data-i18n="nav.notes">Хабарлар</h1><button class="btn ghost" id="readAll" type="button" data-i18n="n.readAll">Барлығын оқылды деп белгілеу</button></div>
+    <section class="card"><ul class="nl" id="noteFull"></ul></section>
+  </div>
+  <div data-view="help" hidden>
+    <h1 data-i18n="nav.help">Қолдау</h1>
+    <div class="grid home">
+      <section class="card">
+        <h2 data-i18n="h.new">Жаңа өтініш</h2>
+        <form class="form" id="ticketForm">
+          <label for="t-sub" data-i18n="h.subject">Тақырып</label><input id="t-sub" required>
+          <label for="t-msg" data-i18n="h.msg">Хабар</label><textarea id="t-msg" required></textarea>
+          <div class="actions"><button class="btn" type="submit" data-i18n="h.send">Жіберу</button></div>
+        </form>
+      </section>
+      <section class="card"><h2 data-i18n="h.mine">Менің өтініштерім</h2><div id="ticketList"></div></section>
+    </div>
+    <h2 style="margin-top:28px" data-i18n="h.faq">Сұрақ-жауап</h2>
+    <section class="card faq" id="faqBox"></section>
+  </div>
+  <div data-view="profile" hidden>
+    <h1 data-i18n="nav.profile">Профиль</h1>
+    <section class="card" id="profileBox"></section>
+  </div>
+</main>
+<button class="help" id="helpBtn" type="button" data-i18n="c.helpBtn">Көмек керек пе?</button>
+<nav class="tabbar">
+  <a href="#home" data-nav="home" data-i18n="nav.home">Басты</a>
+  <a href="#application" data-nav="application" data-i18n="tab.application">Өтініш</a>
+  <a href="#docs" data-nav="docs" data-i18n="tab.docs">Құжат</a>
+  <a href="#notes" data-nav="notes" data-i18n="tab.notes">Хабар</a>
+  <a href="#profile" data-nav="profile" data-i18n="nav.profile">Профиль</a>
+</nav>
+<div class="toast" id="toast" role="status"></div>
+<script src="js/api.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

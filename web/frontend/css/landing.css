@@ -1,0 +1,44 @@
+@import url("scene.css");
+html{scroll-padding-top:88px}
+
+/* ---------- hero: сол жақта мәтін, оң жақта айналатын 3D ---------- */
+.hero{display:grid;grid-template-columns:1.05fr .95fr;gap:24px;align-items:center;min-height:min(640px,calc(100vh - 150px));padding:20px 0 8px}
+.eyebrow{display:inline-flex;align-items:center;gap:10px;margin:0 0 20px;padding:6px 14px 6px 10px;border:1px solid var(--line);border-radius:99px;background:var(--card);color:var(--muted);font:600 13px var(--font);letter-spacing:.03em}
+.eyebrow .pip{width:9px;height:9px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 4px var(--gold-s)}
+.hero h1{font:700 clamp(36px,5.2vw,64px)/1.06 var(--serif);letter-spacing:-.03em;margin:0 0 20px;text-wrap:balance}
+.hero .lead{color:var(--muted);font-size:clamp(16px,1.5vw,19px);line-height:1.65;max-width:50ch;margin:0}
+.hero .actions{margin-top:32px}
+.btn.big{min-height:54px;padding:12px 28px;font-size:16px}
+.hero-pills{display:flex;flex-wrap:wrap;gap:8px;list-style:none;margin:28px 0 0;padding:0}
+.hero-pills li{background:var(--card);border:1px solid var(--line);padding:6px 13px;border-radius:99px;font-size:13px;font-weight:600}
+
+.hero-3d{position:relative;min-height:480px}
+.hero-3d::before{content:"";position:absolute;inset:4% 0 2%;border-radius:50%;
+  background:radial-gradient(closest-side,color-mix(in srgb,var(--navy) 28%,transparent),transparent 72%)}
+.hero-3d .stage{position:absolute;inset:0;height:auto;margin:0}
+.hero-3d .world{--k:1.35}
+
+/* ---------- қалған бөлімдер ---------- */
+.land h2{margin:0 0 14px}
+.sect{margin-top:40px}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:40px}
+.two-col h2{margin-bottom:18px}
+
+@media(max-width:900px){
+  .hero{grid-template-columns:1fr;min-height:0;padding-top:8px}
+  .hero-3d{min-height:360px;order:2}
+  .hero-3d .world{--k:1}
+  .two-col{grid-template-columns:1fr}
+}
+@media(max-width:480px){
+  .hero-3d{min-height:300px}
+  .hero-3d .world{--k:.82}
+  .hero .actions .btn{flex:1 1 100%}
+}
+
+/* тар экранда тақырыптағы түймелер жасырылады: аты толық көрінсін (басты түйме кіру бетіне апарады) */
+.hero{overflow-x:clip}
+@media(max-width:560px){
+  .site-header .tools .btn{display:none}
+  .hero-3d{min-height:280px}
+}

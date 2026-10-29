@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title data-i18n="idx.title">Narxoz колледжі · Қабылдау</title>
+<script src="js/i18n.js"></script>
+<script>
+// басты бетте тек екі дизайн бар: ақ (paper) және қара (night)
+(function(){var t=document.documentElement.getAttribute("data-theme");if(t==="forest")setTheme("paper");else if(t==="violet")setTheme("night");})();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Literata:wght@600;700&family=Noto+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/app.css">
+<link rel="stylesheet" href="css/landing.css">
+</head>
+<body>
+<header class="site-header">
+  <a class="brand" href="/">
+    <svg viewBox="0 0 32 32" width="24" height="24" aria-hidden="true"><path d="M16 5 2 12l14 7 14-7z" fill="currentColor"/><path d="M8 16v6c0 2 4 4 8 4s8-2 8-4v-6l-8 4z" fill="currentColor" opacity=".7"/></svg>
+    <span data-i18n="brand">Narxoz колледжі</span>
+  </a>
+  <nav class="nav">
+    <a href="#programs" data-i18n="nav.programs">Бағдарламалар</a>
+    <a href="#dates" data-i18n="nav.dates">Мерзімдер</a>
+    <a href="#faq" data-i18n="nav.faq">Сұрақтар</a>
+  </nav>
+  <div class="tools">
+    <div class="ctl" data-ctl="mode"></div>
+    <a class="btn ghost" href="/login.html" data-i18n="login">Кіру</a>
+    <a class="btn gold" href="/login.html" data-i18n="register">Тіркелу</a>
+  </div>
+</header>
+<main class="wrap land">
+  <section class="hero">
+    <div class="hero-text">
+      <p class="eyebrow"><span class="pip"></span><span data-i18n="idx.kicker">2026/27 · Қазақстан</span></p>
+      <h1 data-i18n="idx.h1">Колледжге түсу — бір кабинеттен</h1>
+      <p class="lead" data-i18n="idx.lead">Өтініш беріңіз, құжаттарыңызды жүктеңіз және комиссия шешімін онлайн қадағалаңыз — кезексіз, қағазсыз.</p>
+      <div class="actions">
+        <a class="btn gold big" href="/login.html" data-i18n="idx.apply">Өтініш беру</a>
+        <a class="btn ghost big" href="#programs" data-i18n="idx.view">Бағдарламаларды көру</a>
+      </div>
+      <ul class="hero-pills">
+        <li data-i18n="l.pillEnt">ҰБТ · 0–140</li>
+        <li data-i18n="l.pill2">6 бағдарлама</li>
+        <li data-i18n="l.pill3">Онлайн кабинет</li>
+      </ul>
+    </div>
+    <div class="hero-3d">
+      <div class="stage" id="stage" aria-hidden="true">
+        <div class="world"><div class="scene" id="scene" data-spin="1"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="stats">
+    <div class="card stat"><b>6</b><span data-i18n="st.prog">бағдарлама</span></div>
+    <div class="card stat"><b>100+</b><span data-i18n="st.grant">грант орны</span></div>
+    <div class="card stat"><b>3–5</b><span data-i18n="st.review">күн тексеру</span></div>
+    <div class="card stat"><b>15</b><span data-i18n="st.support">мин қолдау</span></div>
+  </div>
+
+  <section class="sect">
+    <h2 id="programs" data-i18n="nav.programs">Бағдарламалар</h2>
+    <div class="progs" id="progList"></div>
+  </section>
+
+  <div class="two-col">
+    <section class="card">
+      <h2 data-i18n="idx.what">Қалай түсесіз</h2>
+      <ol id="steps">
+        <li class="done"><span class="dot">1</span><span class="stitle" data-i18n="idx.s1">Тіркелу</span><span class="sdesc" data-i18n="idx.s1d">ЖСН, email, құпиясөз</span></li>
+        <li class="now"><span class="dot">2</span><span class="stitle" data-i18n="idx.s2">Өтініш</span><span class="sdesc" data-i18n="idx.s2d">Бағдарлама мен ҰБТ балы</span></li>
+        <li><span class="dot">3</span><span class="stitle" data-i18n="idx.s3">Құжаттар</span><span class="sdesc" data-i18n="idx.s3d">PDF / JPG, 5 МБ</span></li>
+        <li><span class="dot">4</span><span class="stitle" data-i18n="idx.s4">Шешім</span><span class="sdesc" data-i18n="idx.s4d">Комиссия кабинетіңізге хабарлайды</span></li>
+      </ol>
+    </section>
+    <section class="card">
+      <h2 id="dates" data-i18n="idx.dates">Маңызды күндер</h2>
+      <ul class="dates" id="dateList"></ul>
+    </section>
+  </div>
+
+  <section class="sect">
+    <h2 id="faq" data-i18n="idx.faq">Жиі қойылатын сұрақтар</h2>
+    <section class="card faq" id="faqBox"></section>
+  </section>
+</main>
+<script src="js/api.js"></script>
+<script src="js/scene.js"></script>
+<script>
+(function(){
+  let data=null, failed=false;
+  const $=id=>document.getElementById(id);
+  const name=p=>getLang()==="ru"?p.name_ru:p.name_kk;
+  const title=d=>getLang()==="ru"?d.title_ru:d.title_kk;
+  const q=f=>getLang()==="ru"?f.q_ru:f.q_kk;
+  const a=f=>getLang()==="ru"?f.a_ru:f.a_kk;
+  function render(){
+    if(failed){$("progList").innerHTML="<p class='empty'>"+esc(tr("idx.down"))+"</p>";return}
+    if(!data)return;
+    const [ps,ds,fs]=data;
+    $("progList").innerHTML=ps.map(p=>`<article class="card prog-card"><span class="chip review">${esc(p.code)}</span>
+      <h3>${esc(name(p))}</h3><p>${esc(dyn(p.description))}</p>
+      <div class="meta-row"><span class="chip ok">${tr("chip.grant")} ${p.grants}</span><span class="chip empty">${tr("chip.paid")} ${p.paid}</span><span class="chip exam">${tr("chip.ent")} ${p.min_ent}</span></div></article>`).join("");
+    $("dateList").innerHTML=ds.map(d=>`<li><b>${esc(dyn(d.day))}</b><span>${esc(title(d))}</span></li>`).join("");
+    $("faqBox").innerHTML=fs.map(f=>`<details><summary>${esc(q(f))}</summary><p>${esc(a(f))}</p></details>`).join("");
+  }
+  addEventListener("abit-lang",render);
+  Promise.all([api.get("/api/programs"),api.get("/api/deadlines"),api.get("/api/faq")])
+    .then(r=>{data=r;render()})
+    .catch(()=>{failed=true;render()});
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title data-i18n="ad.title">Комиссия · Админ</title>
+<script src="js/i18n.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Literata:wght@600;700&family=Noto+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<header class="site-header">
+  <a class="brand" href="/admin.html" data-i18n="ad.brand">Комиссия панелі</a>
+  <nav class="nav">
+    <a href="#apps" data-tab="apps" class="active" data-i18n="ad.tabApps">Өтініштер</a>
+    <a href="#tickets" data-tab="tickets" data-i18n="nav.help">Қолдау</a>
+  </nav>
+  <div class="tools">
+    <div class="ctl" data-ctl></div>
+    <button class="btn ghost" id="logout" type="button" data-i18n="ad.logout">Шығу</button>
+  </div>
+</header>
+<main class="wrap">
+  <h1 data-i18n="brand">Narxoz колледжі</h1>
+  <div class="stats" id="stats"></div>
+  <section id="view-apps">
+    <div class="card" style="overflow:auto">
+      <h2 data-i18n="ad.tabApps">Өтініштер</h2>
+      <table class="admin-table" id="appTable"></table>
+    </div>
+  </section>
+  <section id="view-tickets" hidden>
+    <div class="card" id="ticketBox"></div>
+  </section>
+</main>
+<div class="toast" id="toast"></div>
+<script src="js/api.js"></script>
+<script src="js/admin.js"></script>
+</body>
+</html>

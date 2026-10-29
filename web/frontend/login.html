@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title data-i18n="l.title">Кіру · Абитуриент кабинеті</title>
+<script src="js/i18n.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Literata:wght@600;700&family=Noto+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/login.css">
+</head>
+<body>
+<div class="ctl ctl-fixed" data-ctl></div>
+<main class="page">
+  <section class="hero">
+    <p class="brand">
+      <svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><path d="M16 5 2 12l14 7 14-7z" fill="currentColor"/><path d="M8 16v6c0 2 4 4 8 4s8-2 8-4v-6l-8 4z" fill="currentColor" opacity=".7"/><path d="M29 13v9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      <span data-i18n="brand">Narxoz колледжі</span>
+    </p>
+    <p class="kicker" data-i18n="l.kicker">2026/27 оқу жылы</p>
+    <h1 data-i18n-html="l.hero">Болашағыңа<br>алғашқы қадам</h1>
+    <p class="lead" data-i18n="l.lead">Өтінішіңізді бақылаңыз, құжаттарды жүктеңіз, мерзімдерді қалдырмаңыз.</p>
+    <div class="pills">
+      <span data-i18n="l.pillEnt">ҰБТ · 0–140</span>
+      <span data-i18n="l.pill2">6 бағдарлама</span>
+      <span data-i18n="l.pill3">Онлайн кабинет</span>
+    </div>
+    <div class="stage" id="stage" aria-hidden="true">
+      <div class="world"><div class="scene" id="scene"></div></div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="flip" id="flip">
+      <div class="face front-face" id="loginFace">
+        <h2 data-i18n="l.loginTitle">Кабинетке кіру</h2>
+        <p class="demo">Абитуриент: <b>demo@abit.kz</b> / Demo1234<br>Комиссия: <b>admin@abit.kz</b> / Admin1234</p>
+        <form id="loginForm" novalidate>
+          <label for="login" data-i18n="l.loginLbl">ЖСН немесе email</label>
+          <input id="login" name="login" autocomplete="username" required>
+          <div class="err" id="e-login" role="alert"></div>
+          <label for="pass" data-i18n="l.passLbl">Құпиясөз</label>
+          <div class="pw">
+            <input id="pass" name="pass" type="password" autocomplete="current-password" required>
+            <button type="button" class="eye" data-target="pass" data-i18n-aria="l.showPass" aria-label="Құпиясөзді көрсету"><span data-i18n="l.show">Көрсету</span></button>
+          </div>
+          <div class="err" id="e-pass" role="alert"></div>
+          <div class="row">
+            <label class="chk"><input type="checkbox" id="remember"> <span data-i18n="l.remember">Мені есте сақта</span></label>
+            <a href="/" data-i18n="l.homeLink">Басты бет</a>
+          </div>
+          <div class="err" id="e-form" role="alert"></div>
+          <button class="btn" type="submit" id="loginBtn" style="width:100%;margin-top:10px" data-i18n="l.enter">Кіру</button>
+        </form>
+        <div class="or"><span data-i18n="l.or">немесе</span></div>
+        <button class="btn ghost" type="button" id="toReg" style="width:100%" data-i18n="l.first">Алғашқы тіркелушілер</button>
+        <p class="note" data-i18n="l.firstNote">Алғаш келдіңіз бе? Аккаунт ашып, өтініш беруді бастаңыз.</p>
+      </div>
+
+      <div class="face back-face" id="regFace" inert>
+        <h2 data-i18n="l.regTitle">Алғашқы тіркелу</h2>
+        <form id="regForm" novalidate>
+          <label for="r-name" data-i18n="l.nameLbl">Аты-жөні</label>
+          <input id="r-name" autocomplete="name" required>
+          <div class="err" id="e-rname" role="alert"></div>
+          <div class="two">
+            <div>
+              <label for="r-iin" data-i18n="l.iinLbl">ЖСН (12)</label>
+              <input id="r-iin" inputmode="numeric" maxlength="12" autocomplete="off" required>
+              <div class="err" id="e-riin" role="alert"></div>
+            </div>
+            <div>
+              <label for="r-phone" data-i18n="l.phoneLbl">Телефон</label>
+              <input id="r-phone" type="tel" autocomplete="tel" placeholder="+7" required>
+              <div class="err" id="e-rphone" role="alert"></div>
+            </div>
+          </div>
+          <label for="r-mail">Email</label>
+          <input id="r-mail" type="email" autocomplete="email" required>
+          <div class="err" id="e-rmail" role="alert"></div>
+          <label for="r-pass" data-i18n="l.newPass">Құпиясөз (8+ таңба, әріп және сан)</label>
+          <div class="pw">
+            <input id="r-pass" type="password" autocomplete="new-password" required>
+            <button type="button" class="eye" data-target="r-pass"><span data-i18n="l.show">Көрсету</span></button>
+          </div>
+          <div class="meter" aria-hidden="true"><i id="meter"></i></div>
+          <div class="err" id="e-rpass" role="alert"></div>
+          <label class="chk"><input type="checkbox" id="r-agree"> <span data-i18n="l.agree">Жеке деректерді өңдеуге келісемін</span></label>
+          <div class="err" id="e-ragree" role="alert"></div>
+          <button class="btn" type="submit" style="width:100%" data-i18n="l.regBtn">Тіркелу</button>
+        </form>
+        <button class="btn ghost" type="button" id="toLogin" style="width:100%" data-i18n="l.haveAcc">Аккаунтым бар, кіру</button>
+      </div>
+    </div>
+  </section>
+</main>
+<div class="toast" id="toast" role="status"></div>
+<script src="js/api.js"></script>
+<script src="js/scene.js"></script>
+<script src="js/login.js"></script>
+</body>
+</html>

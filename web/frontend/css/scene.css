@@ -1,0 +1,19 @@
+/* 3D сахна (кітаптар + бітіруші қалпағы): кіру беті мен басты бетте ортақ */
+.stage{position:relative;height:420px;margin-top:8px;perspective:1500px}
+.world{position:absolute;inset:0;transform:scale(var(--k,1.15))}
+.scene{position:absolute;left:50%;top:62%;width:0;height:0;transform-style:preserve-3d;transform:rotateX(-19deg) rotateY(-32deg);will-change:transform}
+.scene,.scene *{transform-style:preserve-3d}
+.bx,.cap,.tas{position:absolute;left:0;top:0}
+.fc{position:absolute;backface-visibility:hidden;-webkit-backface-visibility:hidden;box-shadow:inset 0 0 0 1px rgba(8,16,32,.22)}
+.fc::after{content:"";position:absolute;inset:0;background:#08101f;opacity:var(--s,.2);pointer-events:none}
+.fc.sp{display:grid;place-items:center;font:700 14px/1 var(--serif);letter-spacing:.03em;color:#fffaf0;text-shadow:0 1px 0 rgba(0,0,0,.35);white-space:nowrap}
+.sh{position:absolute;left:0;top:0;margin:-175px 0 0 -215px;width:430px;height:350px;transform:translate3d(0,2px,0) rotateX(90deg);
+  background:radial-gradient(closest-side,rgba(10,20,40,.38),rgba(10,20,40,.14) 60%,rgba(10,20,40,0));backface-visibility:visible}
+.tas{transform:translate3d(159px,-167px,0);animation:sway 4.6s ease-in-out infinite}
+@keyframes sway{0%,100%{transform:translate3d(159px,-167px,0) rotateZ(-6deg)}50%{transform:translate3d(159px,-167px,0) rotateZ(6deg)}}
+.cap.toss{animation:toss .95s cubic-bezier(.25,.7,.35,1) forwards}
+@keyframes toss{
+  0%{transform:translate3d(0,0,0)}
+  60%{transform:translate3d(0,-300px,60px) rotateX(210deg) rotateY(170deg) rotateZ(24deg)}
+  100%{transform:translate3d(0,-210px,40px) rotateX(330deg) rotateY(300deg) rotateZ(10deg);opacity:0}
+}
