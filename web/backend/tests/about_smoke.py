@@ -13,18 +13,19 @@ with sync_playwright() as p:
   assert page.locator('.about-slide').nth(i).get_attribute('aria-hidden')=='false'
   assert abs(page.evaluate('scrollY')-y)<2
   assert abs(page.locator('#about').bounding_box()['height']-height)<2
+ assert page.locator('.about-controls, .about-tabs, .about-pause').count()==0
+ page.emulate_media(reduced_motion='reduce');page.wait_for_timeout(150)
+ page.locator('#about').scroll_into_view_if_needed();page.wait_for_timeout(200)
+ before = page.locator('.about-slide').evaluate_all("ss=>ss.findIndex(s=>s.classList.contains('is-active'))")
+ page.wait_for_timeout(6200)
+ assert page.locator('.about-slide').nth((before+1)%3).get_attribute('aria-hidden')=='false'
  for width in (390,1440):
   page.set_viewport_size({'width':width,'height':950})
   for mode in ('paper','night'):
    page.evaluate('(m)=>setTheme(m)',mode)
-   for i in range(3):
-    page.locator(f'[data-slide="{i}"]').click();page.wait_for_timeout(600)
-    assert page.locator('.about-slide').nth(i).get_attribute('aria-hidden')=='false'
-    assert not page.evaluate('document.documentElement.scrollWidth>innerWidth')
+   assert not page.evaluate('document.documentElement.scrollWidth>innerWidth')
  page.evaluate("setLang('ru')")
  assert page.locator('#about-heading').inner_text()=='О колледже'
- page.emulate_media(reduced_motion='reduce');page.wait_for_timeout(150)
- assert page.locator('.about-pause').inner_text()=='Продолжить'
  assert not errors,errors
- print('PASS: 6-second cycling, wraparound, stable page position/height, manual controls, light/dark, mobile, translation, reduced motion')
+ print('PASS: automatic 6-second cycling without controls, wraparound, stable page, reduced motion, mobile and themes')
  b.close()
