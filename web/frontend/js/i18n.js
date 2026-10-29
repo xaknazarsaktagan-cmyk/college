@@ -5,10 +5,8 @@
   var LANG_KEY = "abit-lang", THEME_KEY = "abit-theme";
   var LANGS = ["kk", "ru"];
   var THEMES = [
-    { id: "paper",  a: "#f3eee3", b: "#12385c" },
-    { id: "forest", a: "#eaf2e4", b: "#1d5c3f" },
-    { id: "night",  a: "#101826", b: "#6fb3e0" },
-    { id: "violet", a: "#1a1428", b: "#b69cf5" }
+    { id: "paper", a: "#fafaf8", b: "#c90035" },
+    { id: "night", a: "#141416", b: "#ff668c" }
   ];
 
   function safeGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
@@ -17,6 +15,8 @@
   function getLang() { var l = safeGet(LANG_KEY); return LANGS.indexOf(l) >= 0 ? l : "kk"; }
   function getTheme() {
     var t = safeGet(THEME_KEY);
+    if (t === "forest") t = "paper";
+    if (t === "violet") t = "night";
     if (THEMES.some(function (x) { return x.id === t; })) return t;
     return window.matchMedia && matchMedia("(prefers-color-scheme:dark)").matches ? "night" : "paper";
   }
