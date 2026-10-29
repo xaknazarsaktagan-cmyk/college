@@ -62,3 +62,19 @@ html{scroll-padding-top:120px}
 @media(prefers-reduced-motion:reduce){.intro-story{height:auto}.intro-stage{position:static;height:auto}.intro-scene{position:static;opacity:1;transform:none;min-height:60vh}.intro-bottom{position:static}}
 .intro-first{background:var(--paper)}
 .story-ready .intro-stage{top:var(--intro-top,80px);height:calc(100svh - var(--intro-top,80px))}
+/* Timed editorial panel: all slides share one grid cell so the page never jumps. */
+.about-section{border-top:1px solid var(--line);padding-top:36px;margin-top:64px}
+.about-heading{display:flex;justify-content:space-between;align-items:baseline;gap:20px}.about-count{font-size:12px;letter-spacing:.12em;color:var(--muted);font-variant-numeric:tabular-nums}
+.about-deck{display:grid;margin-top:12px;isolation:isolate}
+.about-slide{grid-area:1/1;padding:36px 0;align-self:center;opacity:0;visibility:hidden;transform:translateY(14px);transition:opacity .55s ease,transform .55s ease,visibility .55s;pointer-events:none;max-width:1000px}
+.about-slide.is-active{opacity:1;visibility:visible;transform:none;pointer-events:auto}
+.about-slide h3{font-size:clamp(26px,3.3vw,44px);font-weight:650;line-height:1.15;letter-spacing:-.04em;margin:0 0 26px;max-width:24ch}
+.about-slide p{font-size:clamp(17px,1.7vw,23px);line-height:1.8;margin:0;color:var(--ink);max-width:76ch}
+.about-slide ul{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:1fr 1fr;gap:24px 40px}
+.about-slide li{border-top:1px solid var(--line);padding-top:18px;font-size:16px;line-height:1.7;color:var(--muted)}
+.about-slide strong{display:block;color:var(--ink);font-weight:600;margin-bottom:6px}
+.about-controls{display:flex;justify-content:space-between;align-items:center;padding-top:24px;border-top:1px solid var(--line);gap:20px}
+.about-tabs{display:flex;gap:10px}.about-tabs button{min-width:56px;min-height:44px;border:1px solid var(--line);border-radius:6px;background:transparent;color:var(--muted);font:500 13px var(--font);cursor:pointer}
+.about-tabs button[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+@media(max-width:640px){.about-section{margin-top:40px;padding-top:28px}.about-slide{padding:24px 0}.about-slide p{font-size:17px;line-height:1.75}.about-slide ul{grid-template-columns:1fr;gap:16px}.about-slide li{font-size:14px;padding-top:12px}.about-slide h3{margin-bottom:20px}.about-tabs{gap:6px}.about-tabs button{min-width:44px}}
+@media(prefers-reduced-motion:reduce){.about-slide{transition:none;transform:none}}

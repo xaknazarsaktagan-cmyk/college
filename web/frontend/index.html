@@ -21,8 +21,7 @@
   </a>
   <nav class="nav">
     <a href="#programs" data-i18n="nav.programs">Бағдарламалар</a>
-    <a href="#dates" data-i18n="nav.dates">Мерзімдер</a>
-    <a href="#faq" data-i18n="nav.faq">Сұрақтар</a>
+    <a href="#about" data-i18n="about.title">Колледж туралы</a>
   </nav>
   <div class="tools">
     <div class="ctl" data-ctl="mode"></div>
@@ -74,52 +73,50 @@
     <div class="progs" id="progList"></div>
   </section>
 
-  <div class="two-col">
-    <section class="card">
-      <h2 data-i18n="idx.what">Қалай түсесіз</h2>
-      <ol id="steps">
-        <li class="done"><span class="dot">1</span><span class="stitle" data-i18n="idx.s1">Тіркелу</span><span class="sdesc" data-i18n="idx.s1d">ЖСН, email, құпиясөз</span></li>
-        <li class="now"><span class="dot">2</span><span class="stitle" data-i18n="idx.s2">Өтініш</span><span class="sdesc" data-i18n="idx.s2d">Бағдарлама мен ҰБТ балы</span></li>
-        <li><span class="dot">3</span><span class="stitle" data-i18n="idx.s3">Құжаттар</span><span class="sdesc" data-i18n="idx.s3d">PDF / JPG, 5 МБ</span></li>
-        <li><span class="dot">4</span><span class="stitle" data-i18n="idx.s4">Шешім</span><span class="sdesc" data-i18n="idx.s4d">Комиссия кабинетіңізге хабарлайды</span></li>
-      </ol>
-    </section>
-    <section class="card">
-      <h2 id="dates" data-i18n="idx.dates">Маңызды күндер</h2>
-      <ul class="dates" id="dateList"></ul>
-    </section>
-  </div>
-
-  <section class="sect">
-    <h2 id="faq" data-i18n="idx.faq">Жиі қойылатын сұрақтар</h2>
-    <section class="card faq" id="faqBox"></section>
+  <section class="sect about-section" id="about" aria-labelledby="about-heading">
+    <div class="about-heading"><h2 id="about-heading" data-i18n="about.title">Колледж туралы</h2><span class="about-count" aria-hidden="true">01 / 03</span></div>
+    <div class="about-deck">
+      <article class="about-slide is-active">
+        <h3 data-i18n="about.head">Сенің болашағың осы жерден басталады.</h3><p data-i18n="about.first">Нархоз колледжі — бұл тек білім беру орны емес, бұл сенің кәсіби және тұлғалық дамуыңа жол ашатын орта. Бұл жерде теория мен практика ұштасып, студенттер алғашқы курстан бастап өз саласының нақты маманы болып шығады. Бизнес, IT және экономика бағытындағы ең үздік оқытушылар мен заманауи кампус сені күтуде!</p>
+      </article>
+      <article class="about-slide">
+        <p data-i18n="about.second">Нархоз колледжі студенттерге ең сұранысқа ие мамандықтар бойынша тереңдетілген білім береді. Біздің түлектер еңбек нарығында бәсекеге қабілетті және жетекші компанияларда тағылымдамадан өтуге мүмкіндік алады. Заманауи зертханалар, белсенді студенттік өмір және халықаралық стандарттар — бәрі сенің табысты болашағың үшін!</p>
+      </article>
+      <article class="about-slide">
+        <h3 data-i18n="about.why">Неге дәл Нархоз колледжі?</h3><ul><li><strong data-i18n="about.practice">Практикаға бағытталған білім:</strong> <span data-i18n="about.practiceText">Сабақтардың 70%-ы нақты кейстер мен жобалық жұмыстардан тұрады.</span></li><li><strong data-i18n="about.teachers">Мықты оқытушылар құрамы:</strong> <span data-i18n="about.teachersText">Тәжірибелі сарапшылар, IT және бизнес саласының мамандары.</span></li><li><strong data-i18n="about.jobs">Жұмысқа орналасу кепілдігі:</strong> <span data-i18n="about.jobsText">Жетекші отандық және халықаралық компаниялармен тығыз серіктестік.</span></li><li><strong data-i18n="about.campus">Заманауи кампус:</strong> <span data-i18n="about.campusText">Соңғы үлгідегі компьютерлік сыныптар, коворкинг орталықтары мен ыңғайлы оқу кеңістігі.</span></li></ul>
+      </article>
+    </div>
+    <div class="about-controls">
+      <div class="about-tabs" role="group" data-i18n-aria="about.slide" aria-label="Мәтінді таңдау">
+        <button type="button" data-slide="0" aria-pressed="true">01</button>
+        <button type="button" data-slide="1" aria-pressed="false">02</button>
+        <button type="button" data-slide="2" aria-pressed="false">03</button>
+      </div>
+      <button class="btn ghost about-pause" type="button" data-i18n="about.pause">Тоқтату</button>
+    </div>
   </section>
   <footer class="site-footer"><span data-i18n="brand">Narxoz колледжі</span><span>2026 / 27</span><a href="/login.html" data-i18n="login">Кіру</a></footer>
 </main>
 <script src="js/api.js"></script>
 <script src="js/scene.js"></script>
 <script src="js/intro.js"></script>
+<script src="js/about.js"></script>
 
 <script>
 (function(){
   let data=null, failed=false;
   const $=id=>document.getElementById(id);
   const name=p=>getLang()==="ru"?p.name_ru:p.name_kk;
-  const title=d=>getLang()==="ru"?d.title_ru:d.title_kk;
-  const q=f=>getLang()==="ru"?f.q_ru:f.q_kk;
-  const a=f=>getLang()==="ru"?f.a_ru:f.a_kk;
   function render(){
     if(failed){$("progList").innerHTML="<p class='empty'>"+esc(tr("idx.down"))+"</p>";return}
     if(!data)return;
-    const [ps,ds,fs]=data;
+    const ps=data;
     $("progList").innerHTML=ps.map(p=>`<article class="card prog-card"><span class="chip review">${esc(p.code)}</span>
       <h3>${esc(name(p))}</h3><p>${esc(dyn(p.description))}</p>
       <div class="meta-row"><span class="chip ok">${tr("chip.grant")} ${p.grants}</span><span class="chip empty">${tr("chip.paid")} ${p.paid}</span><span class="chip exam">${tr("chip.ent")} ${p.min_ent}</span></div></article>`).join("");
-    $("dateList").innerHTML=ds.map(d=>`<li><b>${esc(dyn(d.day))}</b><span>${esc(title(d))}</span></li>`).join("");
-    $("faqBox").innerHTML=fs.map(f=>`<details><summary>${esc(q(f))}</summary><p>${esc(a(f))}</p></details>`).join("");
   }
   addEventListener("abit-lang",render);
-  Promise.all([api.get("/api/programs"),api.get("/api/deadlines"),api.get("/api/faq")])
+  api.get("/api/programs")
     .then(r=>{data=r;render()})
     .catch(()=>{failed=true;render()});
 })();
