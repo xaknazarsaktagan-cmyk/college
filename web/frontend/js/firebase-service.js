@@ -1,5 +1,5 @@
-import * as f from './vendor/firebase.js';
-import catalog from './catalog.js';
+import * as f from './vendor/firebase.js?v=firebase-2';
+import catalog from './catalog.js?v=firebase-2';
 let auth, db, storage, ready;
 const now = () => new Date().toISOString();
 const fail = (message, status=400) => { const e = new Error(message); e.status=status; throw e; };

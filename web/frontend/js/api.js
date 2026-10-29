@@ -1,6 +1,6 @@
 const TOKEN_KEY = "narxoz-firebase-session";
 let firebaseService;
-const service = () => firebaseService || (firebaseService = import('./firebase-service.js'));
+const service = () => firebaseService || (firebaseService = import('./firebase-service.js?v=firebase-2'));
 const api = {
   token() { return localStorage.getItem(TOKEN_KEY) || sessionStorage.getItem(TOKEN_KEY); },
   setToken(t, remember) {
