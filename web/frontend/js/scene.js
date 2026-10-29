@@ -53,20 +53,20 @@ function book(o){
 }
 
 el("sh","",root);
-book({w:270,h:40,d:196,y:-20, ry:0,  c:"#b24a3a",label:tr("book1")});
-book({w:250,h:34,d:180,y:-57, ry:11, c:"#1b5e8c",label:tr("book2")});
-book({w:230,h:30,d:168,y:-89, ry:-8, c:"#2f7a63",label:tr("book3")});
+book({w:270,h:40,d:196,y:-20, ry:0,  c:"#f7784b",label:tr("book1")});
+book({w:250,h:34,d:180,y:-57, ry:11, c:"#703cea",label:tr("book2")});
+book({w:230,h:30,d:168,y:-89, ry:-8, c:"#b2d84b",label:tr("book3")});
 
 addEventListener("abit-lang",()=>root.querySelectorAll(".fc.sp").forEach((e,i)=>{e.textContent=tr("book"+(i+1))}));
 
 const cap=group(root,"cap",0,0,0);
 const crown=group(cap,"",0,-132.5,0);
-for(let i=0;i<8;i++)panel(crown,51,57,i*45,60,"background:linear-gradient(180deg,#1c3c6b,#122a4b)");
+for(let i=0;i<8;i++)panel(crown,51,57,i*45,60,"background:linear-gradient(180deg,#663bc2,#301654)");
 
-const navy="background:#14294a";
+const navy="background:#412075";
 box(cap,{w:230,h:9,d:230,y:-162.5,ry:45,s:{
-  all:navy,bottom:"background:#0e2040",
-  top:"background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.045) 0 2px,transparent 2px 5px),repeating-linear-gradient(-45deg,rgba(0,0,0,.07) 0 2px,transparent 2px 5px);background-color:#214373"}});
+  all:navy,bottom:"background:#241039",
+  top:"background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.045) 0 2px,transparent 2px 5px),repeating-linear-gradient(-45deg,rgba(0,0,0,.07) 0 2px,transparent 2px 5px);background-color:#7546cd"}});
 box(cap,{w:14,h:7,d:14,y:-170.5,s:{all:"background:"+GOLD}});
 box(cap,{w:158,h:3,d:3,x:79,y:-168.5,s:{all:"background:"+GOLD}});
 
