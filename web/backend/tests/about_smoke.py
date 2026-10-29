@@ -9,15 +9,17 @@ with sync_playwright() as p:
  page.locator('#about').scroll_into_view_if_needed();page.wait_for_timeout(250)
  y=page.evaluate('scrollY');height=page.locator('#about').bounding_box()['height']
  for i in (1,2,0):
-  page.wait_for_timeout(6200)
+  page.wait_for_timeout(4700)
   assert page.locator('.about-slide').nth(i).get_attribute('aria-hidden')=='false'
   assert abs(page.evaluate('scrollY')-y)<2
+  gap = page.locator('.about-slide.is-active').bounding_box()['y'] - page.locator('.about-heading').bounding_box()['y'] - page.locator('.about-heading').bounding_box()['height']
+  assert 0 <= gap <= 20, gap
   assert abs(page.locator('#about').bounding_box()['height']-height)<2
  assert page.locator('.about-controls, .about-tabs, .about-pause').count()==0
  page.emulate_media(reduced_motion='reduce');page.wait_for_timeout(150)
  page.locator('#about').scroll_into_view_if_needed();page.wait_for_timeout(200)
  before = page.locator('.about-slide').evaluate_all("ss=>ss.findIndex(s=>s.classList.contains('is-active'))")
- page.wait_for_timeout(6200)
+ page.wait_for_timeout(4700)
  assert page.locator('.about-slide').nth((before+1)%3).get_attribute('aria-hidden')=='false'
  for width in (390,1440):
   page.set_viewport_size({'width':width,'height':950})
@@ -27,5 +29,5 @@ with sync_playwright() as p:
  page.evaluate("setLang('ru')")
  assert page.locator('#about-heading').inner_text()=='О колледже'
  assert not errors,errors
- print('PASS: automatic 6-second cycling without controls, wraparound, stable page, reduced motion, mobile and themes')
+ print('PASS: automatic 4.5-second cycling without controls, wraparound, stable page, reduced motion, mobile and themes')
  b.close()

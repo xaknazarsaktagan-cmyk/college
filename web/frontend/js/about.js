@@ -18,7 +18,7 @@
         current = (current + 1) % slides.length;
         render();
         schedule();
-      }, 6000);
+      }, 4500);
     }
   }
   document.addEventListener('visibilitychange', schedule);
