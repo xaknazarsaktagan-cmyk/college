@@ -105,7 +105,7 @@
     document.querySelectorAll("[data-msg]").forEach(b => b.onclick = run(async () => {
       const text = document.getElementById("msg-" + b.dataset.msg).value;
       if (!text.trim()) return;
-      await api.post("/api/admin/notify", { user_id: Number(b.dataset.msg), text });
+      await api.post("/api/admin/notify", { user_id: b.dataset.msg, text });
       toast(tr("ad.tMsg")); await refresh();
     }));
     document.querySelectorAll("[data-rep]").forEach(b => b.onclick = run(async () => {
@@ -122,7 +122,7 @@
     $("#view-apps").hidden = a.dataset.tab !== "apps";
     $("#view-tickets").hidden = a.dataset.tab !== "tickets";
   });
-  $("#logout").onclick = () => { api.clear(); location.replace("/login.html"); };
+  $("#logout").onclick = async () => { await api.clear(); location.replace("/login.html"); };
   addEventListener("abit-lang", render);
 
   boot().catch(err => {

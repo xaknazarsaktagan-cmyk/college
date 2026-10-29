@@ -1,0 +1,71 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signed() { return request.auth != null; }
+    function own(uid) { return signed() && request.auth.uid == uid; }
+    function admin() { return signed() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'; }
+    function applicant() { return signed() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'applicant'; }
+    function ownerRead() { return signed() && resource.data.user_id == request.auth.uid; }
+    match /users/{uid} {
+      allow read: if own(uid) || admin();
+      allow create: if own(uid) && request.resource.data.keys().hasOnly(['name','email','phone','iin','role','created_at'])
+        && request.resource.data.role == 'applicant' && request.resource.data.email == request.auth.token.email
+        && request.resource.data.name is string && request.resource.data.name.size() >= 3 && request.resource.data.name.size() <= 160
+        && request.resource.data.iin.matches('^[0-9]{12}$') && request.resource.data.phone.size() <= 32;
+      allow update: if own(uid) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name','phone'])
+        && request.resource.data.name.size() >= 3 && request.resource.data.name.size() <= 160
+        && request.resource.data.phone.size() >= 10 && request.resource.data.phone.size() <= 32;
+    }
+    match /applications/{uid} {
+      function valid() {
+        let v=request.resource.data;
+        return v.keys().hasOnly(['user_id','submitted','status','number','draft','updated_at']) && v.user_id == uid
+          && v.submitted is bool && v.updated_at is string
+          && v.draft.keys().hasOnly(['program_id','lang','ent','dorm'])
+          && v.draft.lang in ['kk','ru','en'] && v.draft.dorm is bool
+          && (v.draft.program_id == null || v.draft.program_id in [1,2,3,4,5,6])
+          && (v.draft.ent == null || (v.draft.ent is int && v.draft.ent >= 0 && v.draft.ent <= 140))
+          && ((!v.submitted && v.status == 'draft') || (v.submitted && v.status == 'review' && v.draft.program_id != null && v.draft.ent != null));
+      }
+      allow read: if own(uid) || admin();
+      allow create: if own(uid) && applicant() && valid();
+      allow update: if (own(uid) && applicant() && !(resource.data.status in ['accepted','rejected']) && valid()
+          && (resource.data.number == null || request.resource.data.number == resource.data.number))
+        || (admin() && resource.data.submitted && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','updated_at'])
+          && request.resource.data.status in ['review','exam','accepted','rejected']);
+    }
+    match /documents/{id} {
+      allow read: if ownerRead() || admin();
+      allow create: if signed() && request.resource.data.user_id == request.auth.uid
+        && id == request.auth.uid + '__' + request.resource.data.type
+        && request.resource.data.type in ['id','cert','med','photo','ent','pay']
+        && request.resource.data.keys().hasOnly(['user_id','type','name','hint','status','file','stored_name','reason'])
+        && request.resource.data.status == 'empty' && request.resource.data.file == null
+        && request.resource.data.stored_name == null && request.resource.data.reason == null;
+      allow update: if (ownerRead() && applicant()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['stored_name','file','status','reason'])
+        && request.resource.data.status == 'review' && request.resource.data.reason == null
+        && request.resource.data.file is string && request.resource.data.file.size() <= 255
+        && request.resource.data.stored_name.matches('^documents/' + request.auth.uid + '/' + id + '/[^/]+$'))
+        || (admin() && resource.data.stored_name != null && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','reason'])
+          && request.resource.data.status in ['ok','bad']);
+    }
+    match /notes/{id} {
+      allow read: if ownerRead() || admin();
+      allow create: if admin() && request.resource.data.keys().hasOnly(['user_id','text','read','created_at'])
+        && request.resource.data.text is string && request.resource.data.text.size() > 0 && request.resource.data.text.size() <= 4000;
+      allow update: if ownerRead() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']) && request.resource.data.read == true;
+    }
+    match /tickets/{id} {
+      allow read: if ownerRead() || admin();
+      allow create: if signed() && applicant() && request.resource.data.user_id == request.auth.uid
+        && request.resource.data.keys().hasOnly(['user_id','subject','message','reply','status','created_at'])
+        && request.resource.data.subject.size() >= 3 && request.resource.data.subject.size() <= 200
+        && request.resource.data.message.size() >= 5 && request.resource.data.message.size() <= 4000
+        && request.resource.data.reply == null && request.resource.data.status == 'open';
+      allow update: if admin() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['reply','status'])
+        && request.resource.data.reply is string && request.resource.data.reply.size() > 0 && request.resource.data.reply.size() <= 4000
+        && request.resource.data.status in ['answered','closed'];
+    }
+  }
+}

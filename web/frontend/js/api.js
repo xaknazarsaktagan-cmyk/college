@@ -1,43 +1,36 @@
-const TOKEN_KEY = "abit-token";
-
+const TOKEN_KEY = "narxoz-firebase-session";
+let firebaseService;
+const service = () => firebaseService || (firebaseService = import('./firebase-service.js'));
 const api = {
-  token() {
-    return localStorage.getItem(TOKEN_KEY) || sessionStorage.getItem(TOKEN_KEY);
-  },
+  token() { return localStorage.getItem(TOKEN_KEY) || sessionStorage.getItem(TOKEN_KEY); },
   setToken(t, remember) {
-    sessionStorage.removeItem(TOKEN_KEY);
-    localStorage.removeItem(TOKEN_KEY);
-    (remember ? localStorage : sessionStorage).setItem(TOKEN_KEY, t);
+    localStorage.removeItem(TOKEN_KEY); sessionStorage.removeItem(TOKEN_KEY);
+    (remember ? localStorage : sessionStorage).setItem(TOKEN_KEY, 'active');
   },
-  clear() {
-    sessionStorage.removeItem(TOKEN_KEY);
-    localStorage.removeItem(TOKEN_KEY);
+  async clear() {
+    localStorage.removeItem(TOKEN_KEY);sessionStorage.removeItem(TOKEN_KEY);
+    try { await (await service()).logout(); } catch (e) { console.warn('Firebase sign-out:',e.code||e.message); }
   },
   async req(path, opts = {}) {
-    const headers = Object.assign({}, opts.headers || {});
-    if (!headers["Content-Type"] && !(opts.body instanceof FormData)) {
-      headers["Content-Type"] = "application/json";
+    try { return await (await service()).request(path, opts); }
+    catch (e) {
+      const messages = {
+        'auth/invalid-credential':'Email немесе құпиясөз қате',
+        'auth/email-already-in-use':'Бұл email тіркелген',
+        'auth/invalid-email':'Email форматы қате',
+        'auth/weak-password':'Құпиясөз жеткілікті күрделі емес',
+        'auth/network-request-failed':'Firebase байланысын тексеріңіз',
+        'auth/too-many-requests':'Сұрау тым көп. Кейінірек қайталаңыз',
+        'permission-denied':'Firebase рұқсаттары жеткіліксіз. Ережелер мен рөлді тексеріңіз',
+        'storage/unauthorized':'Storage рұқсаты жоқ. Storage ережелерін тексеріңіз'
+      };
+      if (messages[e.code]) { const err = new Error(messages[e.code]); err.status=e.status; throw err; }
+      throw e;
     }
-    const tok = this.token();
-    if (tok) headers.Authorization = "Bearer " + tok;
-    const res = await fetch(path, Object.assign({}, opts, { headers }));
-    const text = await res.text();
-    let data = null;
-    try { data = text ? JSON.parse(text) : null; } catch { data = { detail: text }; }
-    if (!res.ok) {
-      let msg = (data && (data.detail || data.message)) || "Қате";
-      if (Array.isArray(msg)) {
-        msg = msg.map(e => `${(e.loc || []).filter(x => x !== "body").join(".")}: ${e.msg}`).join("; ");
-      }
-      const err = new Error(typeof msg === "string" ? dyn(msg) : JSON.stringify(msg));
-      err.status = res.status;
-      throw err;
-    }
-    return data;
   },
   get(p) { return this.req(p); },
-  post(p, body) { return this.req(p, { method: "POST", body: JSON.stringify(body) }); },
-  put(p, body) { return this.req(p, { method: "PUT", body: JSON.stringify(body) }); },
+  post(p, body) { return this.req(p, {method:'POST',body:JSON.stringify(body)}); },
+  put(p, body) { return this.req(p, {method:'PUT',body:JSON.stringify(body)}); }
 };
 
 function esc(s) {
@@ -73,11 +66,8 @@ async function openDoc(id) {
   const tab = window.open("about:blank", "_blank");
   if (tab) tab.opener = null;
   try {
-    const res = await fetch(`/api/documents/${id}/file`, {
-      headers: { Authorization: "Bearer " + api.token() }
-    });
-    if (!res.ok) throw new Error(dyn("Файл ашылмады"));
-    const url = URL.createObjectURL(await res.blob());
+    const blob = await api.get(`/api/documents/${id}/file`);
+    const url = URL.createObjectURL(blob);
     if (tab) tab.location.href = url;
     else {
       const link = document.createElement("a");
