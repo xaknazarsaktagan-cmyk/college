@@ -213,3 +213,7 @@ label{font-weight:500}.avatar{background:var(--navy)}
 [hidden]{display:none!important}
 @media(max-width:1180px){.site-header{padding:14px 20px;gap:14px;flex-wrap:wrap}.nav{order:3;flex-basis:100%}}
 @media(max-width:720px){.site-header{padding:12px 16px;min-height:68px}.brand{font-size:16px}.card{padding:20px}.wrap{padding-top:28px}.tools{max-width:100%}.brand{white-space:normal}.nav{overflow:auto}.tools .ctl{gap:4px}}
+
+/* Narxoz brand palette, shared across the application. */
+:root,:root[data-theme="paper"]{--paper:#f8f8f6;--paper-2:#efeeeb;--card:#fff;--ink:#1c1b1e;--muted:#6b666c;--line:#e1dddf;--navy:#c90035;--navy-d:#a5002c;--navy-2:#e11a4e;--info:#fce8ed;--header-bg:#f8f8f6;--on-navy:#fff}
+:root[data-theme="night"],:root[data-theme="violet"]{--paper:#171417;--paper-2:#211c20;--card:#241f23;--ink:#f7f2f3;--muted:#bfb2b8;--line:#42353c;--navy:#ff6389;--navy-d:#e3446d;--info:#411e2b;--header-bg:#171417;--on-navy:#260b14}

@@ -29,11 +29,22 @@
     <a class="btn gold" href="/login.html#register" data-i18n="register">Тіркелу</a>
   </div>
 </header>
-<main class="wrap land">
+<section class="intro-story" id="intro-story" aria-label="Narxoz College">
+  <div class="intro-stage">
+    <section class="intro-scene intro-first">
+      <div><p class="intro-kicker">NARXOZ COLLEGE · 2026 / 27</p><h1 data-i18n="intro.question">Өзіңізге лайық колледж іздеп жүрсіз бе?</h1></div>
+      <img class="intro-person" src="assets/person.png" alt="" width="447" height="447">
+    </section>
+    <section class="intro-scene intro-second"><p class="intro-kicker" data-i18n="intro.yourChoice">Сіздің таңдауыңыз. Сіздің жолыңыз.</p><h2 data-i18n="intro.future">Болашағыңызды бүгіннен бастаңыз.</h2></section>
+    <section class="intro-scene intro-third"><img src="assets/narxoz.png" alt="Narxoz College" width="240" height="240"><h2 data-i18n="intro.welcome">Бұл — сіздің жаңа бастамаңыз.</h2><a class="btn gold big" href="/login.html#register" data-i18n="idx.apply">Өтініш беру</a></section>
+    <div class="intro-bottom"><span data-i18n="intro.scroll">Төмен айналдырыңыз</span><div class="intro-progress" aria-hidden="true"><i></i></div><a href="#admissions" data-i18n="intro.skip">Қабылдауға өту ↓</a></div>
+  </div>
+</section>
+<main class="wrap land" id="admissions">
   <section class="hero">
     <div class="hero-text">
       <p class="eyebrow"><span class="pip"></span><span data-i18n="idx.kicker">2026/27 · Қазақстан</span></p>
-      <h1 data-i18n="idx.h1">Колледжге түсу — бір кабинеттен</h1>
+      <h2 class="hero-title" data-i18n="idx.h1">Алғашқы қадам — өз таңдауыңыз.</h2>
       <p class="lead" data-i18n="idx.lead">Өтініш беріңіз, құжаттарыңызды жүктеңіз және комиссия шешімін онлайн қадағалаңыз — кезексіз, қағазсыз.</p>
       <div class="actions">
         <a class="btn gold big" href="/login.html" data-i18n="idx.apply">Өтініш беру</a>
@@ -86,6 +97,7 @@
 </main>
 <script src="js/api.js"></script>
 <script src="js/scene.js"></script>
+<script src="js/intro.js"></script>
 
 <script>
 (function(){
