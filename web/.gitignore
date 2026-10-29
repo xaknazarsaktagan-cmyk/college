@@ -7,3 +7,6 @@ uploads/
 *.log
 .DS_Store
 pgdata/
+
+.pytest_cache/
+*.db

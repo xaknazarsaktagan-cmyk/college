@@ -25,7 +25,10 @@ const api = {
     let data = null;
     try { data = text ? JSON.parse(text) : null; } catch { data = { detail: text }; }
     if (!res.ok) {
-      const msg = (data && (data.detail || data.message)) || "Қате";
+      let msg = (data && (data.detail || data.message)) || "Қате";
+      if (Array.isArray(msg)) {
+        msg = msg.map(e => `${(e.loc || []).filter(x => x !== "body").join(".")}: ${e.msg}`).join("; ");
+      }
       const err = new Error(typeof msg === "string" ? dyn(msg) : JSON.stringify(msg));
       err.status = res.status;
       throw err;

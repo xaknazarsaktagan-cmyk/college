@@ -24,6 +24,7 @@
     lf.inert = reg; rf.inert = !reg;
     setTimeout(() => (reg ? $("#r-name") : $("#login")).focus(), 500);
   }
+  if (location.hash === "#register") show(true);
   $("#toReg").onclick = () => show(true);
   $("#toLogin").onclick = () => show(false);
 

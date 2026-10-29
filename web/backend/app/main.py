@@ -46,4 +46,9 @@ def health():
 
 frontend_dir = Path(__file__).resolve().parents[2] / "frontend"
 if frontend_dir.is_dir():
+    @app.api_route("/api/{path:path}", methods=["GET", "POST", "PUT", "DELETE", "PATCH"])
+    def missing_api(path: str):
+        from fastapi import HTTPException
+        raise HTTPException(404, "API жолы табылмады")
+
     app.mount("/", StaticFiles(directory=frontend_dir, html=True), name="frontend")

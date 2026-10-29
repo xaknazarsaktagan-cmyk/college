@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
@@ -10,23 +10,25 @@ from .config import settings
 from .database import get_db
 from .models import User
 
-pwd = CryptContext(schemes=["bcrypt"], deprecated="auto")
+pwd = CryptContext(schemes=["bcrypt_sha256", "bcrypt"], deprecated="auto")
 bearer = HTTPBearer(auto_error=False)
 
 
 def hash_password(password: str) -> str:
-    return pwd.hash(password[:72])
+    return pwd.hash(password)
 
 
 def verify_password(password: str, hashed: str) -> bool:
-    return pwd.verify(password[:72], hashed)
+    if len(password) > 72:
+        return False
+    return pwd.verify(password, hashed)
 
 
 def create_token(user: User) -> str:
     payload = {
         "sub": str(user.id),
         "role": user.role,
-        "exp": datetime.utcnow() + timedelta(hours=settings.jwt_expire_hours),
+        "exp": datetime.now(timezone.utc) + timedelta(hours=settings.jwt_expire_hours),
     }
     return jwt.encode(payload, settings.jwt_secret, algorithm="HS256")
 
@@ -40,7 +42,7 @@ def get_current_user(
     try:
         data = jwt.decode(creds.credentials, settings.jwt_secret, algorithms=["HS256"])
         user_id = int(data["sub"])
-    except (JWTError, KeyError, ValueError):
+    except (JWTError, KeyError, ValueError, TypeError):
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Сессия жарамсыз")
     user = db.get(User, user_id)
     if not user:

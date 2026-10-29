@@ -1,5 +1,6 @@
 (function () {
   const $ = s => document.querySelector(s);
+  const run = fn => async () => { try { await fn(); } catch (err) { toast(err.message); } };
   const $$ = s => [...document.querySelectorAll(s)];
   if (!api.token()) { location.replace("/login.html"); return; }
 
@@ -93,7 +94,7 @@
           ${a.status === "accepted" || a.status === "rejected" ? "" : `<button class="btn ghost" id="reopen" type="button">${tr("a.edit")}</button>`}
         </div>`;
       const r = $("#reopen");
-      if (r) r.onclick = async () => { await api.post("/api/application/reopen", {}); await load(); toast(tr("a.reopened")); };
+      if (r) r.onclick = run(async () => { await api.post("/api/application/reopen", {}); await load(); toast(tr("a.reopened")); });
       return;
     }
     b.innerHTML = `<h2>${tr("a.fill")}</h2>
@@ -151,6 +152,9 @@
     const pct = Math.round(done / Math.max(C.documents.length, 1) * 100);
     $("#docCount").textContent = tr("d.uploaded", { a: done, b: C.documents.length });
     $("#barFill").style.width = pct + "%";
+    $("#bar").setAttribute("aria-valuenow", pct);
+    $("#bar").setAttribute("aria-valuemin", 0);
+    $("#bar").setAttribute("aria-valuemax", 100);
     const o = { bad: 0, empty: 1, up: 2, review: 3, ok: 4 };
     $("#docList").innerHTML = [...C.documents].sort((a, b) => o[a.status] - o[b.status]).map(d => {
       const t = tr("ds." + d.status), c = STATUS_CHIP[d.status] || "empty";
@@ -197,14 +201,14 @@
       <span>${n.r ? "" : "<b>"}${esc(dyn(n.t))}${n.r ? "" : "</b>"}<br><small>${fmt(n.d)}</small></span>
       ${n.r ? "" : `<button class="btn ghost" data-id="${n.id}" type="button" style="min-height:36px;padding:4px 12px">${tr("n.read")}</button>`}
     </li>`).join("") || `<li class="empty">${tr("n.none")}</li>`;
-    $$("#noteFull [data-id]").forEach(b => b.onclick = async () => {
+    $$("#noteFull [data-id]").forEach(b => b.onclick = run(async () => {
       await api.post(`/api/notes/${b.dataset.id}/read`, {});
       await load();
-    });
+    }));
     const u = C.notes.filter(n => !n.r).length, bd = $("#noteCount");
     bd.textContent = u; bd.hidden = !u;
   }
-  $("#readAll").onclick = async () => { await api.post("/api/notes/read-all", {}); await load(); };
+  $("#readAll").onclick = run(async () => { await api.post("/api/notes/read-all", {}); await load(); });
 
   function help() {
     const L = lang();

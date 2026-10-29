@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session, joinedload
 
-from ..auth import get_current_user
+from ..auth import get_current_user as authenticated_user
 from ..config import settings
 from ..database import get_db
 from ..models import Application, Document, Notification, Program, Ticket, User
@@ -14,6 +14,12 @@ from ..schemas import ApplicationIn, TicketIn
 from ..seed import ensure_docs
 
 router = APIRouter(prefix="/api", tags=["cabinet"])
+def get_current_user(user: User = Depends(authenticated_user)) -> User:
+    if user.role != "applicant":
+        raise HTTPException(403, "Тек абитуриентке рұқсат")
+    return user
+
+
 OK_TYPES = {"application/pdf", "image/jpeg", "image/png"}
 
 
@@ -117,7 +123,7 @@ def submit_application(body: ApplicationIn, user: User = Depends(get_current_use
     app.submitted = True
     app.status = "review"
     if not app.number:
-        app.number = "2026-" + str(10000 + user.id * 17 % 90000)
+        app.number = f"{datetime.utcnow().year}-{user.id:06d}"
     db.add(Notification(user_id=user.id, text=f"Өтініш № {app.number} жіберілді. Енді құжаттарды жүктеңіз."))
     db.commit()
     db.refresh(app)
@@ -150,6 +156,13 @@ async def upload(doc_id: int, file: UploadFile = File(...), user: User = Depends
         raise HTTPException(400, f"Файл {settings.max_upload_mb} МБ-тан аспауы керек")
     if not data:
         raise HTTPException(400, "Файл бос болмауы керек")
+    signatures = {
+        "application/pdf": data.startswith(b"%PDF-"),
+        "image/jpeg": data.startswith(b"\xff\xd8\xff"),
+        "image/png": data.startswith(b"\x89PNG\r\n\x1a\n"),
+    }
+    if not signatures[file.content_type]:
+        raise HTTPException(400, "Файл мазмұны таңдалған форматқа сәйкес емес")
     os.makedirs(settings.upload_dir, exist_ok=True)
     ext = {"application/pdf": ".pdf", "image/jpeg": ".jpg", "image/png": ".png"}[file.content_type]
     stored = f"{user.id}_{doc.doc_type}_{uuid.uuid4().hex}{ext}"

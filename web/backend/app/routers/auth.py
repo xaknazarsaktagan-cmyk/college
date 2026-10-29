@@ -2,6 +2,7 @@ import re
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
 
 from ..auth import create_token, get_current_user, hash_password, verify_password
 from ..database import get_db
@@ -43,7 +44,11 @@ def register(body: RegisterIn, db: Session = Depends(get_db)):
         role="applicant",
     )
     db.add(user)
-    db.flush()
+    try:
+        db.flush()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(400, "Бұл email немесе ЖСН тіркелген")
     ensure_docs(db, user)
     db.add(Notification(user_id=user.id, text="Кабинетке қош келдіңіз! Өтінішті толтырудан бастаңыз."))
     db.commit()

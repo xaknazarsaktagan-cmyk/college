@@ -72,3 +72,44 @@ def test_support_reply(client):
     assert r.status_code == 200
     assert client.post(f"/api/admin/tickets/{r.json()['id']}/reply", headers=admin, json={'reply':'Жауап берілді', 'status':'answered'}).status_code == 200
     assert client.get('/api/cabinet', headers=user).json()['tickets'][0]['reply'] == 'Жауап берілді'
+
+
+def test_registration_profile_and_isolation(client):
+    body = {'name':'Жаңа Талапкер', 'iin':'050101123456', 'phone':'+77001112233', 'email':'new@example.com', 'password':'NewPassword123'}
+    response = client.post('/api/auth/register', json=body)
+    assert response.status_code == 200, response.text
+    user = {'Authorization': 'Bearer ' + response.json()['token']}
+    assert client.post('/api/auth/register', json=body).status_code == 400
+    for change in ({'name':'   '}, {'phone':'abcdefghijk'}):
+        assert client.put('/api/auth/profile', headers=user, json=change).status_code == 422
+    other = headers(client, 'demo@abit.kz')
+    doc = client.get('/api/cabinet', headers=other).json()['documents'][0]['id']
+    assert client.get(f'/api/documents/{doc}/file', headers=user).status_code == 403
+    assert client.post(f'/api/documents/{doc}/upload', headers=user, files={'file':('x.pdf', b'%PDF-1.4', 'application/pdf')}).status_code == 404
+    assert client.post('/api/auth/password', headers=user, json={'current':body['password'], 'new_password':'Changed1234'}).status_code == 200
+    assert client.post('/api/auth/login', json={'login':body['email'], 'password':'Changed1234'}).status_code == 200
+
+
+def test_invalid_content_and_admin_boundaries(client):
+    user = headers(client, 'demo@abit.kz')
+    admin = headers(client, 'admin@abit.kz')
+    doc = client.get('/api/cabinet', headers=user).json()['documents'][0]['id']
+    assert client.post(f'/api/documents/{doc}/upload', headers=user, files={'file':('fake.pdf', b'<html>fake</html>', 'application/pdf')}).status_code == 400
+    assert client.put('/api/application', headers=admin, json={'program_id':1}).status_code == 403
+    assert client.post('/api/tickets', headers=user, json={'subject':'   ', 'message':'     '}).status_code == 422
+    assert client.post('/api/admin/tickets/1/reply', headers=admin, json={'reply':'ok', 'status':'invalid'}).status_code == 422
+
+
+def test_unicode_passwords_are_not_truncated():
+    from app.auth import hash_password, verify_password
+    first = 'Ә' * 40 + '1234'
+    second = 'Ә' * 40 + '5678'
+    hashed = hash_password(first)
+    assert verify_password(first, hashed)
+    assert not verify_password(second, hashed)
+
+
+def test_unknown_api_returns_json(client):
+    response = client.get('/api/does-not-exist')
+    assert response.status_code == 404
+    assert response.headers['content-type'].startswith('application/json')
