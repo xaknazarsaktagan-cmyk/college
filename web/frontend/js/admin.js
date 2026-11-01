@@ -52,6 +52,9 @@
             <button class="btn ok" data-ok="${d.id}" type="button" style="min-height:34px">${tr("ad.accept")}</button>
             <button class="btn danger" data-bad="${d.id}" type="button" style="min-height:34px">${tr("ad.return")}</button>` : ""}
         </div>`).join("")}
+        <p>${esc(a.user.phone)} · ${esc(a.user.email)} · ЖСН: ${esc(a.user.iin)}</p>
+        <p>${esc(a.lang)} · ҰБТ: ${esc(a.ent ?? "—")} · ${a.dorm ? "Жатақхана қажет / Нужно общежитие" : "Жатақхана қажет емес / Общежитие не нужно"}</p>
+        <button class="btn" type="button" data-chat="${esc(a.user.id)}">Чат</button>
         <div class="actions">
           <button class="btn" data-st="${a.id}" data-v="exam" type="button">${tr("ad.exam")}</button>
           <button class="btn ok" data-st="${a.id}" data-v="accepted" type="button">${tr("ad.accept")}</button>
@@ -105,7 +108,7 @@
     document.querySelectorAll("[data-msg]").forEach(b => b.onclick = run(async () => {
       const text = document.getElementById("msg-" + b.dataset.msg).value;
       if (!text.trim()) return;
-      await api.post("/api/admin/notify", { user_id: Number(b.dataset.msg), text });
+      await api.post("/api/admin/notify", { user_id: b.dataset.msg, text });
       toast(tr("ad.tMsg")); await refresh();
     }));
     document.querySelectorAll("[data-rep]").forEach(b => b.onclick = run(async () => {
@@ -122,7 +125,8 @@
     $("#view-apps").hidden = a.dataset.tab !== "apps";
     $("#view-tickets").hidden = a.dataset.tab !== "tickets";
   });
-  $("#logout").onclick = () => { api.clear(); location.replace("/login.html"); };
+  $("#refreshAdmin").onclick = run(refresh);
+  $("#logout").onclick = async () => { await api.clear(); location.replace("/login.html"); };
   addEventListener("abit-lang", render);
 
   boot().catch(err => {

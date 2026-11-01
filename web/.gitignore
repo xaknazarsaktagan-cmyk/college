@@ -10,3 +10,7 @@ pgdata/
 
 .pytest_cache/
 *.db
+
+node_modules/
+.firebase/
+*-debug.log

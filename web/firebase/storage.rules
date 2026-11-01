@@ -1,0 +1,14 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    function admin() { return request.auth != null && firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.role == 'admin'; }
+    match /documents/{uid}/{docId}/{fileName} {
+      allow read: if request.auth != null && (request.auth.uid == uid || admin());
+      allow create: if request.auth != null && request.auth.uid == uid
+        && firestore.get(/databases/(default)/documents/documents/$(docId)).data.user_id == uid
+        && request.resource.size > 0 && request.resource.size <= 5 * 1024 * 1024
+        && request.resource.contentType.matches('application/pdf|image/jpeg|image/png');
+      allow delete: if request.auth != null && request.auth.uid == uid;
+    }
+  }
+}

@@ -260,7 +260,7 @@
         toast(tr("p.pwOk"));
       } catch (err) { toast(err.message); }
     };
-    $("#logout").onclick = () => { api.clear(); location.replace("/login.html"); };
+    $("#logout").onclick = async () => { await api.clear(); location.replace("/login.html"); };
   }
 
   const VIEWS = ["home", "application", "docs", "programs", "notes", "help", "profile"];
