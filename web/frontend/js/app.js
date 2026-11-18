@@ -9,6 +9,30 @@
   const STATUS_CHIP = { empty: "empty", up: "up", review: "review", ok: "ok", bad: "bad" };
 
   let C = null, programs = [], deadlines = [], faqs = [];
+  let homeFilter = 'all', catalogFilter = 'all';
+  const copy = (kk, ru) => lang() === 'ru' ? ru : kk;
+  function cabinetLabels() {
+    $$('[data-kk]').forEach(el => el.textContent = lang() === 'ru' ? el.dataset.ru : el.dataset.kk);
+    $$('[data-placeholder-kk]').forEach(el => el.placeholder = lang() === 'ru' ? el.dataset.placeholderRu : el.dataset.placeholderKk);
+  }
+  const fields = {
+    1: { group:'it', symbol:'IS', tags:['Дерекқор|Базы данных', 'Веб-қосымшалар|Веб-приложения', 'Жүйелік талдау|Системный анализ'] },
+    2: { group:'it', symbol:'CS', tags:['Бағдарламалау|Программирование', 'Алгоритмдер|Алгоритмы', 'Жасанды интеллект|Искусственный интеллект'] },
+    3: { group:'it', symbol:'CE', tags:['Компьютерлік желілер|Компьютерные сети', 'Аппараттық жүйелер|Аппаратные системы'] },
+    4: { group:'business', symbol:'EC', tags:['Қаржы|Финансы', 'Экономикалық талдау|Экономический анализ'] },
+    5: { group:'law', symbol:'LW', tags:['Азаматтық құқық|Гражданское право', 'Құқықтық практика|Юридическая практика'] },
+    6: { group:'medicine', symbol:'MD', tags:['Жалпы медицина|Общая медицина', 'Клиникалық практика|Клиническая практика'] }
+  };
+  const descriptionsRu = {
+    1:'Проектирование информационных систем, работа с базами данных и создание корпоративных приложений.',
+    2:'Алгоритмы, программирование и основы искусственного интеллекта. Изучайте, как создавать цифровые решения.',
+    3:'Компьютерные сети, аппаратное обеспечение и встроенные системы. Разбирайтесь в устройстве современных технологий.',
+    4:'Микро- и макроэкономика, финансы и аналитика. Учитесь понимать экономические процессы и работать с данными.',
+    5:'Право Республики Казахстан, гражданское и уголовное судопроизводство. Изучайте основы юридической практики.',
+    6:'Общая медицина и основы клинической практики. Знакомьтесь с направлением подготовки в сфере здравоохранения.'
+  };
+  const groups = () => [['all',copy('Барлығы','Все направления')],['it','IT'],['business',copy('Экономика','Экономика')],['law',copy('Құқық','Право')],['medicine',copy('Медицина','Медицина')]];
+  const description = p => lang() === 'ru' ? (descriptionsRu[p.id] || p.description) : p.description;
 
   const parse = iso => new Date(/(Z|[+-]\d\d:?\d\d)$/.test(iso) ? iso : iso + "Z");
   const fmt = iso => {
@@ -49,7 +73,7 @@
     const el = $("#next");
     if (cur === 1) {
       el.className = "next";
-      el.innerHTML = `<div><h2>${tr("c.n1t")}</h2><p>${tr("c.n1d")}</p></div><a class="btn" href="#application">${tr("a.fill")}</a>`;
+      el.innerHTML = `<div><h2>${tr("c.n1t")}</h2><p>${tr("c.n1d")}</p></div><a class="btn" href="#programs">${copy("Мамандық таңдау","Выбрать специальность")}</a>`;
     } else if (cur === 2) {
       el.className = "next";
       el.innerHTML = `<div><h2>${tr("c.n2t", { n: n.length })}</h2><p>${tr("c.n2d", { x: esc(dyn(n[0].name)) })}</p></div><a class="btn" href="#docs">${tr("c.n2b")}</a>`;
@@ -63,13 +87,16 @@
       el.className = "next ok";
       el.innerHTML = `<div><h2>${tr("c.nWaitT")}</h2><p>${tr("c.nWaitD")}</p></div>`;
     }
-    $("#steps").innerHTML = [1, 2, 3, 4, 5, 6].map((k, i) => {
-      const c = i < cur ? "done" : i === cur ? "now" : "";
-      const st = i < cur ? tr("c.stDone") : i === cur ? tr("c.stNow") : tr("c.stWait");
-      return `<li class="${c}"><span class="dot">${i < cur ? "✔" : i === cur ? "●" : i + 1}</span><span class="stitle">${tr("c.step" + k)} <small>(${st})</small></span><span class="sdesc">${tr("c.step" + k + "d")}</span></li>`;
-    }).join("");
+    const phase = !a.submitted ? 0 : need().length ? 1 : ['accepted','rejected'].includes(a.status) ? 3 : 2;
+    const journey = [
+      [copy('Мамандық таңдау','Выбор специальности'),copy('Бағытыңызды анықтаңыз','Найдите своё направление'),'programs'],
+      [copy('Өтініш пен құжаттар','Заявление и документы'),copy('Деректерді толтырыңыз','Заполните данные'),'application'],
+      [copy('Комиссия тексеруі','Проверка комиссии'),copy('Мәртебені бақылаңыз','Следите за статусом'),'docs'],
+      [copy('Қабылдау шешімі','Решение о зачислении'),copy('Жауапты кабинеттен алыңыз','Получите ответ в кабинете'),'application']
+    ];
+    $("#journey").innerHTML = journey.map(([title, desc, view],i) => `<li class="${i<phase?'complete':i===phase?'current':''}"><a href="#${view}" ${i===phase?'aria-current="step"':''}><span class="journey-number">${i<phase?'✓':String(i+1).padStart(2,'0')}</span><span><strong>${title}</strong><small>${desc}</small></span></a></li>`).join('');
     const done = C.documents.filter(d => d.status === "ok" || d.status === "review").length;
-    $("#hCount").textContent = `${done} / ${C.documents.length}`;
+    $("#hCount").textContent = copy("Құжаттар: ","Документы: ") + `${done} / ${C.documents.length}`;
     $("#hBar").style.width = Math.round(done / Math.max(C.documents.length, 1) * 100) + "%";
     const L = lang();
     $("#dates").innerHTML = deadlines.map(d => `<li><b>${esc(dyn(d.day))}</b><span>${esc(L === "ru" ? d.title_ru : d.title_kk)}</span></li>`).join("");
@@ -186,14 +213,56 @@
     });
   }
 
-  function programsView() {
-    $("#progCards").innerHTML = programs.map(p => `<article class="card prog-card">
-      <span class="chip review">${esc(p.code)}</span>
-      <h3>${esc(pname(p))}</h3>
-      <p>${esc(dyn(p.faculty))} · ${esc(dyn(p.description))}</p>
-      <div class="meta-row"><span class="chip ok">${tr("chip.grant")} ${p.grants}</span><span class="chip empty">${tr("chip.paid")} ${p.paid}</span><span class="chip exam">${tr("chip.ent")} ${p.min_ent}</span></div>
-    </article>`).join("");
+  function programCard(p) {
+    const meta=fields[p.id] || {group:'it',symbol:p.code,tags:[]};
+    const locked=C.application.submitted;
+    return `<article class="specialty-card specialty-${meta.group}">
+      <div class="specialty-top"><span class="specialty-symbol" aria-hidden="true">${esc(meta.symbol)}</span><span class="specialty-code">${copy('Бағдарлама','Программа')} ${esc(p.code)}</span><span class="specialty-index">${String(p.id).padStart(2,'0')}</span></div>
+      <h3>${esc(pname(p))}</h3><p class="specialty-description">${esc(description(p))}</p>
+      <div class="specialty-tags">${meta.tags.map(tag=>{const [kk,ru]=tag.split('|');return `<span>${esc(copy(kk,ru))}</span>`;}).join('')}</div>
+      <div class="specialty-footer"><span>${copy('ҰБТ шегі','Порог ЕНТ')} <b>${esc(p.min_ent)}</b></span><button class="specialty-detail" type="button" data-detail="${p.id}" aria-label="${esc(copy('Толығырақ: ','Подробнее: ')+pname(p))}">${copy('Толығырақ','Подробнее')} <span aria-hidden="true">→</span></button></div>
+      <button class="specialty-choose" type="button" data-choose="${p.id}">${locked?copy('Өтінішімді қарау','Посмотреть заявление'):copy('Осы мамандықты таңдау','Выбрать специальность')} <span aria-hidden="true">→</span></button>
+    </article>`;
   }
+  function programsView() {
+    const search=($('#programSearch').value || '').trim().toLocaleLowerCase();
+    const filtered = (filter,query='') => programs.filter(p=>(filter==='all'||fields[p.id]?.group===filter) && `${pname(p)} ${p.code} ${description(p)}`.toLocaleLowerCase().includes(query));
+    const homePrograms=filtered(homeFilter), catalogPrograms=filtered(catalogFilter,search);
+    const empty=`<div class="catalog-empty"><h3>${copy('Мамандық табылмады','Специальности не найдены')}</h3><p>${copy('Басқа сөзбен іздеңіз немесе бағытты өзгертіңіз.','Попробуйте другой запрос или измените направление.')}</p><button class="btn ghost" type="button" data-reset-search>${copy('Сүзгілерді тазарту','Сбросить фильтры')}</button></div>`;
+    $('#homeProgCards').innerHTML=homePrograms.map(programCard).join('') || empty;
+    $('#progCards').innerHTML=catalogPrograms.map(programCard).join('') || empty;
+    $('#homeProgramCount').textContent=copy(`${homePrograms.length} мамандық`,`${homePrograms.length} специальностей`);
+    $('#programCount').textContent=copy(`Табылды: ${catalogPrograms.length}`,`Найдено: ${catalogPrograms.length}`);
+    $$('[data-filter-group]').forEach(el=>{
+      const current=el.dataset.filterGroup==='home'?homeFilter:catalogFilter;
+      el.setAttribute('aria-label',copy('Мамандық бағыттары','Направления обучения'));
+      el.innerHTML=groups().map(([key,title])=>`<button type="button" data-filter="${key}" aria-pressed="${key===current}">${title}${key==='all'?` <span>${programs.length}</span>`:''}</button>`).join('');
+    });
+  }
+  const detail=document.createElement('dialog');
+  detail.className='program-dialog';detail.setAttribute('aria-labelledby','detail-title');document.body.append(detail);
+  let detailProgram=null;
+  function showDetail(id) {
+    const p=programs.find(p=>p.id===id);if(!p)return;
+    detailProgram=id;
+    detail.innerHTML=`<button class="detail-close" type="button" aria-label="${copy('Жабу','Закрыть')}">×</button><p class="eyebrow">${copy('МАМАНДЫҚ ТУРАЛЫ','О СПЕЦИАЛЬНОСТИ')} · ${esc(p.code)}</p><h2 id="detail-title">${esc(pname(p))}</h2><p>${esc(description(p))}</p><dl class="detail-facts"><div><dt>${copy('ҰБТ шегі','Порог ЕНТ')}</dt><dd>${esc(p.min_ent)}</dd></div><div><dt>${tr('chip.grant')}</dt><dd>${esc(p.grants)}</dd></div><div><dt>${tr('chip.paid')}</dt><dd>${esc(p.paid)}</dd></div></dl><p class="catalog-hint">${copy('Қабылдау шарттары мен орындар санын комиссиядан нақтылаңыз.','Уточните условия приёма и количество мест у комиссии.')}</p><button class="btn" data-choose="${p.id}" type="button">${C.application.submitted?copy('Өтінішімді қарау','Посмотреть заявление'):copy('Осы мамандыққа өтініш беру','Подать заявление на эту специальность')}</button>`;
+    detail.querySelector('.detail-close').onclick=()=>detail.close();
+    if(!detail.open)detail.showModal();
+  }
+  document.addEventListener('click',event=>{
+    const filter=event.target.closest('[data-filter]');
+    if(filter){const group=filter.closest('[data-filter-group]');const focusKey=filter.dataset.filter;if(group.dataset.filterGroup==='home')homeFilter=focusKey;else catalogFilter=focusKey;programsView();group.querySelector(`[data-filter="${focusKey}"]`).focus();return;}
+    if(event.target.closest('[data-reset-search]')){homeFilter='all';catalogFilter='all';$('#programSearch').value='';programsView();return;}
+    const info=event.target.closest('[data-detail]');if(info){showDetail(Number(info.dataset.detail));return;}
+    const choose=event.target.closest('[data-choose]');
+    if(choose){
+      if(detail.open)detail.close();
+      if(!C.application.submitted){$('#a-prog').value=choose.dataset.choose;$('#a-prog').dispatchEvent(new Event('change'));}
+      location.hash='#application';route();
+      if(!C.application.submitted)$('#a-prog').focus();
+    }
+  });
+  $('#programSearch').addEventListener('input',programsView);
 
   function notes() {
     $("#noteFull").innerHTML = C.notes.map(n => `<li class="${n.r ? "" : "unread"}">
@@ -271,7 +340,7 @@
     $$("[data-nav]").forEach(a => a.dataset.nav === v ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current"));
     scrollTo(0, 0);
   }
-  function renderAll() { home(); application(); docs(); programsView(); notes(); help(); profile(); }
+  function renderAll() { cabinetLabels(); home(); application(); docs(); programsView(); notes(); help(); profile(); }
   addEventListener("hashchange", route);
   // тіл ауысқанда деректі қайта сұрамай-ақ қайта сызамыз
   addEventListener("abit-lang", () => {
@@ -282,6 +351,7 @@
       if (el.matches("input,select")) keep[el.id] = el.type === "checkbox" ? el.checked : el.value;
     });
     renderAll();
+    if(detail.open && detailProgram)showDetail(detailProgram);
     Object.entries(keep).forEach(([id, v]) => {
       const el = document.getElementById(id);
       if (!el) return;

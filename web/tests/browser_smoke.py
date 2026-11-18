@@ -8,6 +8,7 @@ root=Path(__file__).resolve().parents[1]
 with sync_playwright() as p:
     browser=p.chromium.launch(executable_path='/usr/bin/chromium',headless=True,args=['--no-sandbox'])
     page=browser.new_page()
+    page.route('**/js/firebase-config.js*',lambda route:route.fulfill(content_type='text/javascript',body='window.FIREBASE_CONFIG={};'))
     page.goto('http://127.0.0.1:8086/login.html')
     page.locator('#login').fill('missing@example.com');page.locator('#pass').fill('Testing1234');page.locator('#loginBtn').click()
     page.wait_for_function("document.querySelector('#e-form').textContent.includes('firebase-config.js')")
@@ -22,6 +23,31 @@ with sync_playwright() as p:
     page.locator('#r-agree').check();page.locator('#regForm button[type=submit]').click();page.wait_for_url('**/cabinet.html')
     page.wait_for_function("document.querySelector('#who').textContent.length>0")
     uid=page.evaluate("async()=> (await api.get('/api/auth/me')).id")
+    # Catalogue navigation, filters and choosing a specialty must feed the real form.
+    assert page.locator('#homeProgCards .specialty-card').count()==6
+    page.locator('[data-filter-group=home] [data-filter=it]').click()
+    assert page.locator('#homeProgCards .specialty-card').count()==3
+    page.locator('[data-nav=programs]').first.click()
+    page.locator('#programSearch').fill('B049')
+    assert page.locator('#progCards .specialty-card').count()==1
+    page.locator('#progCards [data-detail]').click()
+    page.locator('.program-dialog').wait_for(state='visible')
+    page.evaluate("setLang('ru')")
+    assert page.locator('#detail-title').inner_text()=='Юриспруденция'
+    page.evaluate("setLang('kk')")
+    page.locator('.program-dialog [data-choose]').click()
+    page.wait_for_url('**/cabinet.html#application')
+    assert page.locator('#a-prog').input_value()=='5'
+    page.locator('#a-ent').fill('100')
+    page.evaluate("setLang('ru')")
+    assert page.locator('#a-prog').input_value()=='5'
+    assert page.locator('#a-ent').input_value()=='100'
+    page.evaluate("setLang('kk')")
+    page.locator('[data-nav=programs]').first.click()
+    page.locator('#programSearch').fill('no-such-specialty')
+    assert page.locator('#progCards .catalog-empty').count()==1
+    page.locator('#progCards [data-reset-search]').click()
+    assert page.locator('#progCards .specialty-card').count()==6
     page.locator('[data-nav=application]').first.click();page.locator('#a-prog').select_option(index=1);page.locator('#a-ent').fill('100');page.locator('#appForm button[type=submit]').click();page.wait_for_url('**/cabinet.html#docs')
     page.locator('#docList input[type=file]').first.set_input_files({'name':'test.pdf','mimeType':'application/pdf','buffer':b'%PDF-1.4\n%%EOF'})
     page.locator('[data-openfile]').first.wait_for()
@@ -46,6 +72,11 @@ with sync_playwright() as p:
     page.locator('#chat-close').click()
     page.locator('#logout').click();page.wait_for_url('**/login.html')
     page.locator('#login').fill('student@example.com');page.locator('#pass').fill('Testing1234');page.locator('#loginBtn').click();page.wait_for_url('**/cabinet.html')
+    page.locator('[data-nav=programs]').first.click()
+    page.locator('#progCards [data-choose]').first.click()
+    page.wait_for_url('**/cabinet.html#application')
+    assert page.locator('#a-prog').count()==0
+    assert page.locator('#appBox .chip.accepted').count()==1
     page.locator('.chat-launch').click()
     page.locator('#chat-log').get_by_text('Құжаттар қабылданды',exact=True).wait_for()
     page.set_viewport_size({'width':390,'height':844})
@@ -53,5 +84,5 @@ with sync_playwright() as p:
     assert not errors,errors
     assert not any('/api/' in r for r in requests),requests
     assert uid.isalnum()
-    print('PASS: missing config guidance; registration/login/logout, string UID, cabinet, application, PDF upload, tickets, admin decisions/replies/notifications, private two-way chat history, HTML escaping, mobile layout; no HTTP API calls. Firebase SDK double only.')
+    print('PASS: missing config guidance; registration/login/logout, searchable specialty catalogue, filters, details, preselected application, bilingual draft preservation, final-decision guard, PDF upload, tickets, admin decisions/replies/notifications, private two-way chat history, HTML escaping, mobile layout; no HTTP API calls. Firebase SDK double only.')
     browser.close()

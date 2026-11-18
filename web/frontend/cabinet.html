@@ -8,44 +8,53 @@
 <link rel="stylesheet" href="css/app.css">
 <link rel="stylesheet" href="css/palette.css">
 <link rel="stylesheet" href="css/chat.css">
+<link rel="stylesheet" href="css/cabinet.css?v=cabinet-2">
 </head>
-<body>
+<body class="cabinet-shell">
 <a class="skip" href="#main" data-i18n="skip">Негізгі мазмұнға өту</a>
 <header class="site-header">
-  <a class="brand" href="#home" data-i18n="brand">Narxoz колледжі</a>
+  <a class="brand" href="#home"><span class="brand-mark" aria-hidden="true">N.</span><span>Narxoz<span class="brand-sub" data-kk="АБИТУРИЕНТ КАБИНЕТІ" data-ru="КАБИНЕТ АБИТУРИЕНТА">АБИТУРИЕНТ КАБИНЕТІ</span></span></a>
+  <p class="nav-caption" data-kk="МЕНІҢ КАБИНЕТІМ" data-ru="МОЙ КАБИНЕТ">МЕНІҢ КАБИНЕТІМ</p>
   <nav class="nav" data-i18n-aria="nav.main" aria-label="Негізгі навигация">
     <a href="#home" data-nav="home" data-i18n="nav.home">Басты</a>
     <a href="#application" data-nav="application" data-i18n="nav.application">Өтінішім</a>
     <a href="#docs" data-nav="docs" data-i18n="nav.docs">Құжаттар</a>
-    <a href="#programs" data-nav="programs" data-i18n="nav.programs">Бағдарламалар</a>
+    <a href="#programs" data-nav="programs" data-kk="Мамандықтар" data-ru="Специальности">Мамандықтар</a>
     <a href="#notes" data-nav="notes"><span data-i18n="nav.notes">Хабарлар</span> <span class="badge" id="noteCount" hidden>0</span></a>
     <a href="#help" data-nav="help" data-i18n="nav.help">Қолдау</a>
     <a href="#profile" data-nav="profile" data-i18n="nav.profile">Профиль</a>
   </nav>
+  <a class="sidebar-support" href="#help"><span data-kk="Сұрағыңыз бар ма?" data-ru="Есть вопросы?">Сұрағыңыз бар ма?</span><small data-kk="Қабылдау комиссиясы көмектеседі →" data-ru="Приёмная комиссия поможет →">Қабылдау комиссиясы көмектеседі →</small></a>
   <div class="tools">
     <div class="ctl" data-ctl="mode"></div>
     <a class="avatar" id="avatar" href="#profile">А</a>
   </div>
 </header>
 <main id="main" class="wrap">
+  <div class="cabinet-topline"><span data-kk="Жеке кабинет / Қабылдау" data-ru="Личный кабинет / Поступление">Жеке кабинет / Қабылдау</span><span class="session-state"><i></i><span data-kk="Аккаунт белсенді" data-ru="Аккаунт активен">Аккаунт белсенді</span></span></div>
   <div data-view="home">
-    <section class="welcome">
-      <p class="who" id="who"></p>
-      <h1 id="headline"></h1>
-      <p class="prog" id="prog"></p>
+    <section class="cabinet-hero">
+      <div><p class="who" id="who"></p><p class="eyebrow" data-kk="БОЛАШАҒЫҢЫЗ ОСЫ ЖЕРДЕН БАСТАЛАДЫ" data-ru="ВАШЕ БУДУЩЕЕ НАЧИНАЕТСЯ ЗДЕСЬ">БОЛАШАҒЫҢЫЗ ОСЫ ЖЕРДЕН БАСТАЛАДЫ</p>
+      <h1 data-kk="Өз бағытыңызды таңдаңыз." data-ru="Выберите своё направление.">Өз бағытыңызды таңдаңыз.</h1>
+      <p class="hero-description" data-kk="Мамандықтарды зерттеңіз, өтініш беріңіз және қабылдау барысын осы жерден бақылаңыз." data-ru="Изучайте специальности, подавайте заявление и следите за поступлением в одном кабинете.">Мамандықтарды зерттеңіз, өтініш беріңіз және қабылдау барысын осы жерден бақылаңыз.</p>
+      <a class="btn" href="#programs"><span data-kk="Мамандықтарды қарау" data-ru="Смотреть специальности">Мамандықтарды қарау</span><span aria-hidden="true">→</span></a></div>
+      <div class="hero-art" aria-hidden="true"><span class="art-orbit"></span><svg class="art-arrow" viewBox="0 0 100 100"><path d="M20 80 80 20M20 20h60v60" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="square"/></svg><span class="art-caption">NARXOZ<br>YOUR NEXT CHAPTER</span><span class="art-cross">+</span></div>
     </section>
-    <section class="next" id="next"></section>
-    <div class="grid home">
-      <section class="card tracker"><h2 data-i18n="c.tracker">Өтініш жолы</h2><ol id="steps"></ol></section>
-      <div class="stack">
-        <section class="card">
-          <div class="docs-head"><h2 data-i18n="c.docs">Құжаттар</h2><span class="count" id="hCount"></span></div>
-          <div class="bar"><i id="hBar"></i></div>
-          <a href="#docs" data-i18n="c.openAllDocs">Барлық құжаттарды ашу</a>
-        </section>
-        <section class="card"><h2 data-i18n="c.dates">Маңызды күндер</h2><ul class="dates" id="dates"></ul></section>
-        <section class="card"><h2 data-i18n="c.lastNotes">Соңғы хабарлар</h2><ul class="notes" id="noteList"></ul><a href="#notes" data-i18n="c.allNotes">Барлық хабарлар</a></section>
-      </div>
+    <section class="admission-overview" aria-labelledby="admission-title">
+      <div class="section-heading"><div><p class="eyebrow" data-kk="ҚАДАМ-ҚАДАММЕН" data-ru="ШАГ ЗА ШАГОМ">ҚАДАМ-ҚАДАММЕН</p><h2 id="admission-title" data-kk="Оқуға түсу жолы" data-ru="Ваш путь к поступлению">Оқуға түсу жолы</h2></div><a class="text-link" href="#application" data-kk="Менің өтінішім →" data-ru="Моё заявление →">Менің өтінішім →</a></div>
+      <ol class="admission-steps" id="journey"></ol>
+      <div class="application-status"><div><span class="status-dot"></span><strong id="headline"></strong><p class="prog" id="prog"></p></div><span class="count" id="hCount"></span></div>
+      <div class="bar"><i id="hBar"></i></div>
+      <section class="next" id="next"></section>
+    </section>
+    <section class="specialty-section" aria-labelledby="specialties-title">
+      <div class="section-heading"><div><p class="eyebrow" data-kk="СІЗГЕ ҚАЙ БАҒЫТ ЖАҚЫН?" data-ru="КАКОЕ НАПРАВЛЕНИЕ ВАМ БЛИЖЕ?">СІЗГЕ ҚАЙ БАҒЫТ ЖАҚЫН?</p><h2 id="specialties-title" data-kk="Мамандықтар" data-ru="Специальности">Мамандықтар</h2></div><span class="catalog-count" id="homeProgramCount"></span></div>
+      <div class="program-filters" data-filter-group="home" aria-label="Мамандық бағыттары"></div>
+      <div class="specialty-grid" id="homeProgCards"></div>
+    </section>
+    <div class="dashboard-bottom">
+      <section class="card"><div class="section-heading"><h2 data-i18n="c.lastNotes">Соңғы хабарлар</h2><a href="#notes" class="text-link" data-kk="Барлығы →" data-ru="Все →">Барлығы →</a></div><ul class="notes" id="noteList"></ul></section>
+      <section class="card"><h2 data-i18n="c.dates">Маңызды күндер</h2><p class="catalog-hint" data-kk="Күндерді қабылдау комиссиясымен нақтылаңыз." data-ru="Уточняйте даты у приёмной комиссии.">Күндерді қабылдау комиссиясымен нақтылаңыз.</p><ul class="dates" id="dates"></ul></section>
     </div>
   </div>
   <div data-view="application" hidden>
@@ -62,8 +71,10 @@
     </section>
   </div>
   <div data-view="programs" hidden>
-    <h1 data-i18n="nav.programs">Бағдарламалар</h1>
-    <div class="progs" id="progCards"></div>
+    <div class="section-heading"><div><p class="eyebrow" data-kk="БОЛАШАҚ МАМАНДЫҒЫҢЫЗ" data-ru="ВАША БУДУЩАЯ ПРОФЕССИЯ">БОЛАШАҚ МАМАНДЫҒЫҢЫЗ</p><h1 data-kk="Мамандықтар каталогы" data-ru="Каталог специальностей">Мамандықтар каталогы</h1><p class="catalog-hint" data-kk="Бағыттарды салыстырып, өзіңізге сәйкес мамандықты таңдаңыз." data-ru="Сравните направления и выберите подходящую специальность.">Бағыттарды салыстырып, өзіңізге сәйкес мамандықты таңдаңыз.</p></div></div>
+    <div class="catalog-toolbar"><label class="catalog-search"><span data-kk="Мамандық іздеу" data-ru="Поиск специальности">Мамандық іздеу</span><input id="programSearch" type="search" autocomplete="off" placeholder="Атауы немесе коды" data-placeholder-kk="Атауы немесе коды" data-placeholder-ru="Название или код"></label><span class="catalog-count" id="programCount" aria-live="polite"></span></div>
+    <div class="program-filters" data-filter-group="catalog" aria-label="Мамандық бағыттары"></div>
+    <div class="specialty-grid" id="progCards"></div>
   </div>
   <div data-view="notes" hidden>
     <div class="vhead"><h1 data-i18n="nav.notes">Хабарлар</h1><button class="btn ghost" id="readAll" type="button" data-i18n="n.readAll">Барлығын оқылды деп белгілеу</button></div>
@@ -90,7 +101,7 @@
     <section class="card" id="profileBox"></section>
   </div>
 </main>
-<button class="help" id="helpBtn" type="button" data-i18n="c.helpBtn">Көмек керек пе?</button>
+<button class="help" id="helpBtn" type="button" data-i18n="c.helpBtn" hidden>Көмек керек пе?</button>
 <nav class="tabbar">
   <a href="#home" data-nav="home" data-i18n="nav.home">Басты</a>
   <a href="#application" data-nav="application" data-i18n="tab.application">Өтініш</a>
@@ -101,7 +112,7 @@
 <div class="toast" id="toast" role="status"></div>
 <script src="js/firebase-config.js?v=admin-chat-1"></script>
 <script src="js/api.js?v=admin-chat-1"></script>
-<script src="js/app.js?v=admin-chat-1"></script>
+<script src="js/app.js?v=cabinet-2"></script>
 <script src="js/chat.js?v=admin-chat-1"></script>
 </body>
 </html>
