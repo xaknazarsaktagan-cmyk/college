@@ -1,12 +1,12 @@
-// Firebase Console → Project settings → Your apps → Web app → SDK configuration.
-// Public web configuration only. NEVER put a service-account private key here.
+
 window.FIREBASE_CONFIG = {
-  apiKey: "",
-  authDomain: "",
-  projectId: "",
-  storageBucket: "",
-  messagingSenderId: "",
-  appId: ""
+  apiKey: "AIzaSyAt2pMhu4WoocxLkgJLorXZlUIM4Uy oucs".replace(" ", ""),
+  authDomain: "xako-cours.firebaseapp.com",
+  projectId: "xako-cours",
+  storageBucket: "xako-cours.firebasestorage.app",
+  messagingSenderId: "867413402469",
+  appId: "1:867413402469:web:56c0beb7f18aa815f3f78c",
+  measurementId: "G-2X68DL0BNT"
 };
-// For local automated tests only; keep false when connecting to a real project.
+
 window.FIREBASE_EMULATORS = false;
