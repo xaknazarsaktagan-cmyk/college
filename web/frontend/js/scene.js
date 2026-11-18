@@ -100,11 +100,24 @@ function render(t){
   root.style.transform=`rotateX(${X}deg) rotateY(${Y}deg)`;
   shade(Y,X);
 }
+let frame=0, inView=true;
 function loop(t){
+  frame=0;
+  if(document.hidden || reduce.matches || !inView)return;
   if(root.offsetParent!==null)render(t);
-  requestAnimationFrame(loop);
+  frame=requestAnimationFrame(loop);
+}
+function updatePlayback(){
+  cancelAnimationFrame(frame);frame=0;
+  if(reduce.matches){render(0);return;}
+  if(!document.hidden && inView)frame=requestAnimationFrame(loop);
 }
 render(0);
-if(!reduce.matches)requestAnimationFrame(loop);
+if('IntersectionObserver' in window){
+  new IntersectionObserver(entries=>{inView=entries[0].isIntersecting;updatePlayback();}).observe(root.closest('.stage')||root);
+}
+document.addEventListener('visibilitychange',updatePlayback);
+reduce.addEventListener('change',updatePlayback);
+updatePlayback();
 addEventListener("abit-login-ok",()=>{if(!reduce.matches)cap.classList.add("toss")});
 })();

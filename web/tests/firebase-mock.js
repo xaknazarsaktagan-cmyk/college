@@ -29,3 +29,12 @@ export const connectAuthEmulator=()=>{};export const connectFirestoreEmulator=()
 window.__firebaseMock={promote(uid){state.docs['users/'+uid].role='admin';save();}};
 
 export const serverTimestamp=()=>({__timestamp:new Date().toISOString()});
+
+export function uploadBytesResumable(r,file,meta){
+ let canceled=false,finished=false,timer,reject;
+ return {cancel(){if(finished)return false;canceled=true;clearTimeout(timer);reject?.({code:'storage/canceled'});return true;},on(event,progress,error,complete){
+   reject=error;
+   timer=setTimeout(async()=>{try{if(canceled)throw {code:'storage/canceled'};if(window.__failNextUpload){const code=window.__failNextUpload;delete window.__failNextUpload;throw {code};}progress({bytesTransferred:0,totalBytes:file.size});await uploadBytes(r,file,meta);if(canceled)throw {code:'storage/canceled'};progress({bytesTransferred:file.size,totalBytes:file.size});finished=true;complete();}catch(e){finished=true;error(e);}},window.__uploadDelay||100);
+   return ()=>{};
+ }};
+}

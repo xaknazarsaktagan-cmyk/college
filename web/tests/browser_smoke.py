@@ -49,6 +49,25 @@ with sync_playwright() as p:
     page.locator('#progCards [data-reset-search]').click()
     assert page.locator('#progCards .specialty-card').count()==6
     page.locator('[data-nav=application]').first.click();page.locator('#a-prog').select_option(index=1);page.locator('#a-ent').fill('100');page.locator('#appForm button[type=submit]').click();page.wait_for_url('**/cabinet.html#docs')
+    # Errors remain visible beside the file; choosing the same file retries correctly.
+    upload=page.locator('#docList input[type=file]').first
+    input_id=upload.get_attribute('id')
+    page.evaluate("window.__failNextUpload='storage/unauthorized'")
+    upload.set_input_files({'name':'retry.pdf','mimeType':'application/pdf','buffer':b'%PDF-1.4\n%%EOF'})
+    page.locator('.upload-feedback.failed .upload-message').filter(has_text='storage/unauthorized').wait_for()
+    assert not upload.is_disabled()
+    upload.set_input_files({'name':'retry.pdf','mimeType':'application/pdf','buffer':b'%PDF-1.4\n%%EOF'})
+    page.locator('[data-openfile]').first.wait_for()
+    assert page.locator('.upload-feedback.failed').count()==0
+    # Browser-supplied empty MIME still works when extension AND signature match.
+    page.evaluate("""async()=>{const c=await api.get('/api/cabinet');const d=c.documents.find(x=>x.status==='empty');const fd=new FormData();fd.append('file',new File(['%PDF-1.4\\n%%EOF'],'no-mime.pdf',{type:''}));await api.req('/api/documents/'+d.id+'/upload',{method:'POST',body:fd});}""")
+    # Real PNG signature, and a renamed invalid image must not pass validation.
+    page.evaluate("""async()=>{const c=await api.get('/api/cabinet');const d=c.documents.find(x=>x.status==='empty');const fd=new FormData();fd.append('file',new File([await new Promise(resolve=>{const canvas=document.createElement('canvas');canvas.width=canvas.height=1;canvas.toBlob(resolve,'image/png');})],'photo.png',{type:'image/png'}));await api.req('/api/documents/'+d.id+'/upload',{method:'POST',body:fd});const saved=(await api.get('/api/cabinet')).documents.find(x=>x.id===d.id);if(saved.status!=='review'||saved.file!=='photo.png')throw Error('PNG not saved');const bad=new FormData();bad.append('file',new File(['not a photo'],'fake.png',{type:'image/png'}));let rejected=false;try{await api.req('/api/documents/'+d.id+'/upload',{method:'POST',body:bad});}catch(e){rejected=true;}if(!rejected)throw Error('Invalid signature accepted');}""")
+    page.evaluate("window.__uploadDelay=3000")
+    page.locator('#docList input[type=file]').first.set_input_files({'name':'cancel.pdf','mimeType':'application/pdf','buffer':b'%PDF-1.4\n%%EOF'})
+    page.locator('.upload-cancel:visible').click()
+    page.locator('.upload-feedback.failed .upload-message').filter(has_text='storage/canceled').wait_for()
+    page.evaluate("window.__uploadDelay=0")
     page.locator('#docList input[type=file]').first.set_input_files({'name':'test.pdf','mimeType':'application/pdf','buffer':b'%PDF-1.4\n%%EOF'})
     page.locator('[data-openfile]').first.wait_for()
     page.evaluate("api.post('/api/tickets',{subject:'Сұрақ',message:'Өтініш туралы сұрақ'})")
@@ -84,5 +103,5 @@ with sync_playwright() as p:
     assert not errors,errors
     assert not any('/api/' in r for r in requests),requests
     assert uid.isalnum()
-    print('PASS: missing config guidance; registration/login/logout, searchable specialty catalogue, filters, details, preselected application, bilingual draft preservation, final-decision guard, PDF upload, tickets, admin decisions/replies/notifications, private two-way chat history, HTML escaping, mobile layout; no HTTP API calls. Firebase SDK double only.')
+    print('PASS: missing config guidance; registration/login/logout, searchable specialty catalogue, filters, details, preselected application, bilingual draft preservation, final-decision guard, resumable upload, permission error/retry/cancel, empty MIME fallback, PDF upload, tickets, admin decisions/replies/notifications, private two-way chat history, HTML escaping, mobile layout; no HTTP API calls. Firebase SDK double only.')
     browser.close()

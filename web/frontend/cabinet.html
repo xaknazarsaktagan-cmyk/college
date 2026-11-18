@@ -4,11 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title data-i18n="c.title">Абитуриент кабинеті</title>
-<script src="js/i18n.js?v=admin-chat-1"></script>
+<script src="js/i18n.js?v=experience-3"></script>
 <link rel="stylesheet" href="css/app.css">
 <link rel="stylesheet" href="css/palette.css">
 <link rel="stylesheet" href="css/chat.css">
-<link rel="stylesheet" href="css/cabinet.css?v=cabinet-2">
+<link rel="stylesheet" href="css/scene.css">
+<link rel="stylesheet" href="css/cabinet.css?v=experience-3">
 </head>
 <body class="cabinet-shell">
 <a class="skip" href="#main" data-i18n="skip">Негізгі мазмұнға өту</a>
@@ -38,8 +39,9 @@
       <h1 data-kk="Өз бағытыңызды таңдаңыз." data-ru="Выберите своё направление.">Өз бағытыңызды таңдаңыз.</h1>
       <p class="hero-description" data-kk="Мамандықтарды зерттеңіз, өтініш беріңіз және қабылдау барысын осы жерден бақылаңыз." data-ru="Изучайте специальности, подавайте заявление и следите за поступлением в одном кабинете.">Мамандықтарды зерттеңіз, өтініш беріңіз және қабылдау барысын осы жерден бақылаңыз.</p>
       <a class="btn" href="#programs"><span data-kk="Мамандықтарды қарау" data-ru="Смотреть специальности">Мамандықтарды қарау</span><span aria-hidden="true">→</span></a></div>
-      <div class="hero-art" aria-hidden="true"><span class="art-orbit"></span><svg class="art-arrow" viewBox="0 0 100 100"><path d="M20 80 80 20M20 20h60v60" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="square"/></svg><span class="art-caption">NARXOZ<br>YOUR NEXT CHAPTER</span><span class="art-cross">+</span></div>
+      <div class="hero-art hero-art-3d" aria-hidden="true"><span class="hero-halo"></span><div class="stage"><div class="world"><div id="scene" class="scene"></div></div></div><span class="floating-label label-one">LEARN. CREATE.</span><span class="floating-label label-two">YOUR NEXT CHAPTER</span></div>
     </section>
+    <div class="cabinet-shortcuts"><a href="#application"><span class="shortcut-icon">01</span><span><strong data-kk="Өтінішімді толтыру" data-ru="Заполнить заявление">Өтінішімді толтыру</strong><small data-kk="Мамандық пен оқу тілін таңдау" data-ru="Специальность и язык обучения">Мамандық пен оқу тілін таңдау</small></span><span aria-hidden="true">→</span></a><a href="#docs"><span class="shortcut-icon">02</span><span><strong data-kk="Құжаттарды жүктеу" data-ru="Загрузить документы">Құжаттарды жүктеу</strong><small data-kk="PDF, JPG, PNG · 5 МБ дейін" data-ru="PDF, JPG, PNG · до 5 МБ">PDF, JPG, PNG · 5 МБ дейін</small></span><span aria-hidden="true">→</span></a><button type="button" data-open-chat><span class="shortcut-icon">03</span><span><strong data-kk="Комиссияға жазу" data-ru="Написать комиссии">Комиссияға жазу</strong><small data-kk="Сұрағыңызды жеке чатта қойыңыз" data-ru="Задайте вопрос в личном чате">Сұрағыңызды жеке чатта қойыңыз</small></span><span aria-hidden="true">→</span></button></div>
     <section class="admission-overview" aria-labelledby="admission-title">
       <div class="section-heading"><div><p class="eyebrow" data-kk="ҚАДАМ-ҚАДАММЕН" data-ru="ШАГ ЗА ШАГОМ">ҚАДАМ-ҚАДАММЕН</p><h2 id="admission-title" data-kk="Оқуға түсу жолы" data-ru="Ваш путь к поступлению">Оқуға түсу жолы</h2></div><a class="text-link" href="#application" data-kk="Менің өтінішім →" data-ru="Моё заявление →">Менің өтінішім →</a></div>
       <ol class="admission-steps" id="journey"></ol>
@@ -110,9 +112,11 @@
   <a href="#profile" data-nav="profile" data-i18n="nav.profile">Профиль</a>
 </nav>
 <div class="toast" id="toast" role="status"></div>
-<script src="js/firebase-config.js?v=admin-chat-1"></script>
-<script src="js/api.js?v=admin-chat-1"></script>
-<script src="js/app.js?v=cabinet-2"></script>
-<script src="js/chat.js?v=admin-chat-1"></script>
+<script src="js/firebase-config.js?v=experience-3"></script>
+<script src="js/api.js?v=experience-3"></script>
+<script src="js/app.js?v=experience-3"></script>
+<script src="js/chat.js?v=experience-3"></script>
+<script src="js/scene.js?v=experience-3"></script>
+<script src="js/cabinet-motion.js?v=experience-3"></script>
 </body>
 </html>

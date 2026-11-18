@@ -1,5 +1,5 @@
-import * as f from './vendor/firebase.js?v=admin-chat-1';
-import catalog from './catalog.js?v=admin-chat-1';
+import * as f from './vendor/firebase.js?v=experience-3';
+import catalog from './catalog.js?v=experience-3';
 let auth, db, storage, ready;
 const now = () => new Date().toISOString();
 const fail = (message, status=400) => { const e = new Error(message); e.status=status; throw e; };
@@ -13,6 +13,7 @@ function init() {
   }
   const app=f.initializeApp(config);
   auth=f.getAuth(app); db=f.getFirestore(app); storage=f.getStorage(app);
+  storage.maxUploadRetryTime=30000;
   if (window.FIREBASE_EMULATORS) {
     f.connectAuthEmulator(auth,'http://127.0.0.1:9099',{disableWarnings:true});
     f.connectFirestoreEmulator(db,'127.0.0.1',8082);
@@ -49,17 +50,21 @@ async function saveApplication(body,submit) {
     tx.set(ref,value);return value;
   });
 }
-async function upload(id,file) {
+async function upload(id,file,opts={}) {
   const u=await applicant(), doc=await read('documents',id);
   if(!doc || doc.user_id!==u.id) fail('Құжат табылмады',404);
-  if(!file || !['application/pdf','image/jpeg','image/png'].includes(file.type))fail('PDF, JPG немесе PNG таңдаңыз');
+  const mime=file?.type==='image/jpg'?'image/jpeg':file?.type || ({pdf:'application/pdf',jpg:'image/jpeg',jpeg:'image/jpeg',png:'image/png'}[file?.name.split('.').pop().toLowerCase()]);
+  if(!file || !['application/pdf','image/jpeg','image/png'].includes(mime))fail('PDF, JPG немесе PNG таңдаңыз');
   if(!file.size || file.size>5*1024*1024)fail('Файл бос болмауы және 5 МБ-тан аспауы керек');
   const bytes=new Uint8Array(await file.slice(0,8).arrayBuffer());
   const signatures={'application/pdf':[37,80,68,70,45],'image/jpeg':[255,216,255],'image/png':[137,80,78,71,13,10,26,10]};
-  if(!signatures[file.type].every((b,i)=>bytes[i]===b))fail('Файл мазмұны форматқа сәйкес емес');
-  const ext={'application/pdf':'pdf','image/jpeg':'jpg','image/png':'png'}[file.type];
+  if(!signatures[mime].every((b,i)=>bytes[i]===b))fail('Файл мазмұны форматқа сәйкес емес');
+  const ext={'application/pdf':'pdf','image/jpeg':'jpg','image/png':'png'}[mime];
   const path=`documents/${u.id}/${id}/${crypto.randomUUID()}.${ext}`;
-  await f.uploadBytes(f.ref(storage,path),file,{contentType:file.type});
+  if(file.name.length>255)fail('Файл атауы тым ұзын (255 таңбаға дейін)');
+  const task=f.uploadBytesResumable(f.ref(storage,path),file,{contentType:mime});
+  opts.onCancelReady?.(()=>task.cancel());
+  await new Promise((resolve,reject)=>task.on('state_changed',snapshot=>opts.onProgress?.(Math.round(snapshot.bytesTransferred/Math.max(snapshot.totalBytes,1)*100)),reject,resolve));
   try { await f.updateDoc(d('documents',id),{stored_name:path,file:file.name,status:'review',reason:null}); }
   catch(e) { await f.deleteObject(f.ref(storage,path)).catch(()=>{});throw e; }
   if(doc.stored_name) await f.deleteObject(f.ref(storage,doc.stored_name)).catch(()=>{});
@@ -112,7 +117,7 @@ export async function request(path, opts={}) {
     const u=await applicant();await f.runTransaction(db,async tx=>{const ref=d('applications',u.id),s=await tx.get(ref);if(!s.exists()||!s.data().submitted||['accepted','rejected'].includes(s.data().status))fail('Өтінішті өзгертуге болмайды');tx.update(ref,{submitted:false,status:'draft',updated_at:now()});});return {ok:true};
   }
   let match;
-  if((match=path.match(/^\/api\/documents\/([^/]+)\/upload$/)))return upload(match[1],body.get('file'));
+  if((match=path.match(/^\/api\/documents\/([^/]+)\/upload$/)))return upload(match[1],body.get('file'),opts);
   if((match=path.match(/^\/api\/documents\/([^/]+)\/file$/))) {
     const u=await me(),value=await read('documents',match[1]);if(!value || (!value.stored_name))fail('Файл жоқ',404);
     if(u.role!=='admin'&&value.user_id!==u.id)fail('Рұқсат жоқ',403);

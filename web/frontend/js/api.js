@@ -1,6 +1,6 @@
 const TOKEN_KEY = "narxoz-firebase-session";
 let firebaseService;
-const service = () => firebaseService || (firebaseService = import('./firebase-service.js?v=admin-chat-1'));
+const service = () => firebaseService || (firebaseService = import('./firebase-service.js?v=experience-3'));
 const api = {
   token() { return localStorage.getItem(TOKEN_KEY) || sessionStorage.getItem(TOKEN_KEY); },
   setToken(t, remember) {
@@ -14,6 +14,7 @@ const api = {
   async req(path, opts = {}) {
     try { return await (await service()).request(path, opts); }
     catch (e) {
+      const ru = typeof getLang==='function' && getLang()==='ru';
       const messages = {
         'auth/invalid-credential':'Email немесе құпиясөз қате',
         'auth/email-already-in-use':'Бұл email тіркелген',
@@ -22,9 +23,16 @@ const api = {
         'auth/network-request-failed':'Firebase байланысын тексеріңіз',
         'auth/too-many-requests':'Сұрау тым көп. Кейінірек қайталаңыз',
         'permission-denied':'Firebase рұқсаттары жеткіліксіз. Ережелер мен рөлді тексеріңіз',
-        'storage/unauthorized':'Storage рұқсаты жоқ. Storage ережелерін тексеріңіз'
+        'storage/unauthorized':ru?'Нет доступа к хранилищу. Комиссии нужно проверить правила Firebase Storage.':'Қоймаға рұқсат жоқ. Комиссия Firebase Storage ережелерін тексеруі керек.',
+        'storage/unauthenticated':ru?'Войдите в аккаунт заново и повторите загрузку.':'Аккаунтқа қайта кіріп, файлды қайта жүктеңіз.',
+        'storage/bucket-not-found':ru?'Хранилище файлов ещё не подключено. Обратитесь в комиссию.':'Файл қоймасы әлі қосылмаған. Комиссияға хабарласыңыз.',
+        'storage/project-not-found':ru?'Хранилище проекта не найдено. Обратитесь в комиссию.':'Жобаның файл қоймасы табылмады. Комиссияға хабарласыңыз.',
+        'storage/quota-exceeded':ru?'Лимит хранилища исчерпан. Обратитесь в комиссию.':'Файл қоймасының лимиті таусылған. Комиссияға хабарласыңыз.',
+        'storage/retry-limit-exceeded':ru?'Хранилище не ответило за 30 секунд. Проверьте интернет и попробуйте снова. Если ошибка повторяется, сообщите комиссии.':'Қойма 30 секундта жауап бермеді. Интернетті тексеріп, қайталаңыз. Қайталанса, комиссияға хабарласыңыз.',
+        'storage/canceled':ru?'Загрузка отменена. Можно выбрать файл снова.':'Жүктеу тоқтатылды. Файлды қайта таңдауға болады.',
+        'storage/unknown':ru?'Файл не загружен. Попробуйте снова; если ошибка повторяется, сообщите комиссии.':'Файл жүктелмеді. Қайталап көріңіз; қайталанса, комиссияға хабарласыңыз.'
       };
-      if (messages[e.code]) { const err = new Error(messages[e.code]); err.status=e.status; throw err; }
+      if (messages[e.code]) { const err = new Error(messages[e.code]); err.status=e.status; err.code=e.code; throw err; }
       throw e;
     }
   },

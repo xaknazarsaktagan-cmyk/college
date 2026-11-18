@@ -17,3 +17,4 @@
   60%{transform:translate3d(0,-300px,60px) rotateX(210deg) rotateY(170deg) rotateZ(24deg)}
   100%{transform:translate3d(0,-210px,40px) rotateX(330deg) rotateY(300deg) rotateZ(10deg);opacity:0}
 }
+@media(prefers-reduced-motion:reduce){.tas,.cap.toss{animation:none}}

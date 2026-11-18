@@ -9,6 +9,7 @@
   const STATUS_CHIP = { empty: "empty", up: "up", review: "review", ok: "ok", bad: "bad" };
 
   let C = null, programs = [], deadlines = [], faqs = [];
+  let uploadBusy=false;
   let homeFilter = 'all', catalogFilter = 'all';
   const copy = (kk, ru) => lang() === 'ru' ? ru : kk;
   function cabinetLabels() {
@@ -53,6 +54,7 @@
   const stLabel = s => { const k = "s." + s; const v = tr(k); return v === k ? s : v; };
 
   async function load() {
+    if(uploadBusy)return;
     C = await api.get("/api/cabinet");
     programs = await api.get("/api/programs");
     deadlines = await api.get("/api/deadlines");
@@ -193,6 +195,7 @@
         ${d.file ? `<button class="btn ghost" data-openfile="${d.id}" type="button" style="min-height:32px;padding:4px 10px;margin-left:8px">${tr("d.open")}</button>` : ""}
         </div>
         ${btn ? `<div><input type="file" id="f-${d.id}" accept=".pdf,.jpg,.jpeg,.png" hidden><label class="btn ${d.status === "ok" || d.status === "review" ? "ghost" : ""}" for="f-${d.id}">${btn}</label></div>` : "<div></div>"}
+        <div class="upload-feedback" hidden><span class="upload-filename"></span><progress max="100" value="0" aria-label="${copy('Файлды жүктеу','Загрузка файла')}"></progress><span class="upload-message" role="status" aria-live="polite"></span><button class="btn ghost upload-cancel" type="button" hidden>${copy('Тоқтату','Отменить')}</button></div>
         ${d.reason ? `<div class="reason">${esc(tr("d.reason", { r: dyn(d.reason) }))}</div>` : ""}
       </li>`;
     }).join("");
@@ -200,15 +203,32 @@
     $$("#docList input[type=file]").forEach(i => {
       i.onchange = async e => {
         const f = e.target.files[0];
-        if (!f) return;
+        if (!f || uploadBusy) return;
+        uploadBusy=true;
+        $$('#docList input[type=file]').forEach(input=>input.disabled=true);
         const id = i.closest("li").dataset.id;
         const fd = new FormData();
         fd.append("file", f);
+        const row=i.closest('li'), feedback=row.querySelector('.upload-feedback'), message=row.querySelector('.upload-message'), progress=row.querySelector('progress'), cancel=row.querySelector('.upload-cancel');
+        feedback.hidden=false;feedback.classList.remove('failed');
+        row.querySelector('.upload-filename').textContent=f.name;
+        const uploadLabel=row.querySelector(`label[for="${i.id}"]`), originalLabel=uploadLabel.textContent;
+        uploadLabel.textContent=copy('Жүктелуде…','Загрузка…');
+        i.disabled=true;row.setAttribute('aria-busy','true');
+        progress.value=0;message.textContent=copy('Байланыс орнатылуда…','Подключение…');
+        const slow=setTimeout(()=>{if(progress.value===0)message.textContent=copy('Қоймадан жауап күтілуде…','Ожидаем ответ хранилища…');},7000);
         try {
-          await api.req(`/api/documents/${id}/upload`, { method: "POST", body: fd, headers: {} });
-          toast(tr("d.done"));
+          await api.req(`/api/documents/${id}/upload`, { method: 'POST', body: fd, headers: {},
+            onProgress:percent=>{progress.value=percent;message.textContent=percent===100?copy('Құжат сақталуда…','Сохраняем документ…'):copy(`Жүктелуде: ${percent}%`,`Загрузка: ${percent}%`);},
+            onCancelReady:stop=>{cancel.hidden=false;cancel.onclick=()=>{stop();cancel.disabled=true;};}
+          });
+          message.textContent=tr('d.done');toast(tr('d.done'));
+          uploadBusy=false;
           await load();
-        } catch (err) { toast(err.message); }
+        } catch (err) {
+          feedback.classList.add('failed');message.textContent=err.message+(err.code?` (${err.code})`:'');toast(err.message);
+        } finally {clearTimeout(slow);uploadBusy=false;$$('#docList input[type=file]').forEach(input=>input.disabled=false);uploadLabel.textContent=originalLabel;i.disabled=false;i.value='';row.removeAttribute('aria-busy');cancel.hidden=true;cancel.disabled=false;}
+
       };
     });
   }
@@ -218,6 +238,7 @@
     const locked=C.application.submitted;
     return `<article class="specialty-card specialty-${meta.group}">
       <div class="specialty-top"><span class="specialty-symbol" aria-hidden="true">${esc(meta.symbol)}</span><span class="specialty-code">${copy('Бағдарлама','Программа')} ${esc(p.code)}</span><span class="specialty-index">${String(p.id).padStart(2,'0')}</span></div>
+      <div class="specialty-art"><img src="assets/specialty-${p.id}.svg" width="320" height="240" alt="" loading="lazy" decoding="async"></div>
       <h3>${esc(pname(p))}</h3><p class="specialty-description">${esc(description(p))}</p>
       <div class="specialty-tags">${meta.tags.map(tag=>{const [kk,ru]=tag.split('|');return `<span>${esc(copy(kk,ru))}</span>`;}).join('')}</div>
       <div class="specialty-footer"><span>${copy('ҰБТ шегі','Порог ЕНТ')} <b>${esc(p.min_ent)}</b></span><button class="specialty-detail" type="button" data-detail="${p.id}" aria-label="${esc(copy('Толығырақ: ','Подробнее: ')+pname(p))}">${copy('Толығырақ','Подробнее')} <span aria-hidden="true">→</span></button></div>
@@ -344,7 +365,7 @@
   addEventListener("hashchange", route);
   // тіл ауысқанда деректі қайта сұрамай-ақ қайта сызамыз
   addEventListener("abit-lang", () => {
-    if (!C) return;
+    if (!C || uploadBusy) return;
     // толтырылып жатқан өрістер жоғалмасын
     const keep = {};
     $$("#appBox [id], #profileBox [id]").forEach(el => {
