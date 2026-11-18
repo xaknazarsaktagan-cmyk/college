@@ -14,3 +14,7 @@ pgdata/
 node_modules/
 .firebase/
 *-debug.log
+
+# Supabase CLI local state (not deployment source)
+supabase/.temp/
+supabase/.branches/

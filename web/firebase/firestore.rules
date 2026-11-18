@@ -43,8 +43,9 @@ service cloud.firestore {
         && request.resource.data.status == 'empty' && request.resource.data.file == null
         && request.resource.data.stored_name == null && request.resource.data.reason == null;
       allow update: if (ownerRead() && applicant()
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['stored_name','file','status','reason'])
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['stored_name','file','status','reason','storage_provider'])
         && request.resource.data.status == 'review' && request.resource.data.reason == null
+        && request.resource.data.get('storage_provider','firebase') in ['firebase','supabase']
         && request.resource.data.file is string && request.resource.data.file.size() <= 255
         && request.resource.data.stored_name.matches('^documents/' + request.auth.uid + '/' + id + '/[^/]+$'))
         || (admin() && resource.data.stored_name != null && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','reason'])

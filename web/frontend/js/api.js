@@ -1,6 +1,6 @@
 const TOKEN_KEY = "narxoz-firebase-session";
 let firebaseService;
-const service = () => firebaseService || (firebaseService = import('./firebase-service.js?v=experience-3'));
+const service = () => firebaseService || (firebaseService = import('./firebase-service.js?v=private-files-1'));
 const api = {
   token() { return localStorage.getItem(TOKEN_KEY) || sessionStorage.getItem(TOKEN_KEY); },
   setToken(t, remember) {
@@ -69,25 +69,28 @@ function t(dict) {
   return dict[lang()] || dict.kk || "";
 }
 
+let documentViewer;
 async function openDoc(id) {
-  // Open during the click event so browsers do not block the tab after fetch.
-  const tab = window.open("about:blank", "_blank");
-  if (tab) tab.opener = null;
+  const ru=typeof getLang==='function'&&getLang()==='ru';
+  if(documentViewer?.open)documentViewer.close();
+  const dialog=document.createElement('dialog');documentViewer=dialog;
+  dialog.className='document-viewer';dialog.setAttribute('aria-label',ru?'Просмотр документа':'Құжатты қарау');
+  dialog.innerHTML=`<header><h2>${ru?'Документ':'Құжат'}</h2><button type="button" class="viewer-close" aria-label="${ru?'Закрыть':'Жабу'}">×</button></header><p class="viewer-status" role="status">${ru?'Загружаем документ…':'Құжат жүктелуде…'}</p><div class="viewer-content"></div><footer></footer>`;
+  let objectUrl;
+  dialog.querySelector('.viewer-close').onclick=()=>dialog.close();
+  dialog.addEventListener('close',()=>{if(objectUrl)URL.revokeObjectURL(objectUrl);dialog.remove();},{once:true});
+  document.body.append(dialog);dialog.showModal();
   try {
-    const blob = await api.get(`/api/documents/${id}/file`);
-    const url = URL.createObjectURL(blob);
-    if (tab) tab.location.href = url;
-    else {
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = "document";
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-    }
-    setTimeout(() => URL.revokeObjectURL(url), 60000);
-  } catch (err) {
-    if (tab) tab.close();
-    throw err;
-  }
+    const blob=await api.get(`/api/documents/${id}/file`);
+    if(!dialog.open)return;
+    if(!['application/pdf','image/png','image/jpeg'].includes(blob.type))throw new Error(ru?'Неподдерживаемый формат документа':'Құжат форматы қолдау таппайды');
+    objectUrl=URL.createObjectURL(blob);
+    const title=blob.name||'document';dialog.querySelector('h2').textContent=title;
+    const view=document.createElement(blob.type==='application/pdf'?'iframe':'img');
+    view.src=objectUrl;
+    if(view.tagName==='IMG'){view.alt=title;}else{view.title=title;view.setAttribute('referrerpolicy','no-referrer');}
+    dialog.querySelector('.viewer-content').append(view);
+    dialog.querySelector('.viewer-status').textContent=ru?'Если просмотр недоступен, скачайте файл.':'Алдын ала қарау ашылмаса, файлды жүктеп алыңыз.';
+    const link=document.createElement('a');link.href=objectUrl;link.download=title;link.className='btn';link.textContent=ru?'Скачать документ':'Құжатты жүктеп алу';dialog.querySelector('footer').append(link);
+  } catch(error){if(dialog.open)dialog.querySelector('.viewer-status').textContent=error.message;throw error;}
 }

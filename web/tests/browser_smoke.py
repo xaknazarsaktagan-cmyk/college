@@ -14,6 +14,7 @@ with sync_playwright() as p:
     page.wait_for_function("document.querySelector('#e-form').textContent.includes('firebase-config.js')")
     context=browser.new_context()
     context.route('**/js/firebase-config.js*',lambda route:route.fulfill(content_type='text/javascript',body='window.FIREBASE_CONFIG={apiKey:"demo",projectId:"demo",appId:"demo",storageBucket:"demo"};'))
+    context.route('**/js/document-storage-config.js*',lambda route:route.fulfill(content_type='text/javascript',body="window.DOCUMENT_STORAGE={provider:'firebase'};"))
     context.route('**/js/vendor/firebase.js*',lambda route:route.fulfill(content_type='text/javascript',body=(root/'tests/firebase-mock.js').read_text()))
     page=context.new_page();errors=[];requests=[]
     page.on('pageerror',lambda e:errors.append(str(e)))

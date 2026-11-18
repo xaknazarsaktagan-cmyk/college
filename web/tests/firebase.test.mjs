@@ -89,3 +89,12 @@ test('private chat: both parties, isolation, impersonation, timestamps and immut
  await assertFails(updateDoc(doc(alice,'messages','student'),{text:'Changed'}));
  await assertFails(deleteDoc(doc(admin,'messages','reply')));
 });
+
+test('documents allow validated private storage provider without changing ownership',async()=>{
+ const db=env.authenticatedContext('bob').firestore(),r=doc(db,'documents','bob__id');
+ await assertSucceeds(setDoc(r,document('bob')));
+ const payload={stored_name:'documents/bob/bob__id/a.pdf',file:'a.pdf',status:'review',reason:null};
+ await assertFails(updateDoc(r,{...payload,storage_provider:'public'}));
+ await assertSucceeds(updateDoc(r,{...payload,storage_provider:'supabase'}));
+ await assertFails(updateDoc(r,{user_id:'alice'}));
+});

@@ -5,7 +5,7 @@
 1. Қазіргі жобаңыздың сақтық көшірмесін жасаңыз.
 2. Архивтің `web` қалтасын жобаңыздағы `web` қалтасымен біріктіріңіз.
 3. **Өзіңіз толтырған `frontend/js/firebase-config.js` файлын сақтаңыз.** Бұл жаңарту архивіне ол әдейі қосылмады. Firebase параметрлерін қайта енгізудің қажеті жоқ.
-4. Firebase Console → Firestore Database → Rules ішіне `firebase/firestore.rules` мазмұнын қойып, Publish басыңыз. Storage → Rules үшін `firebase/storage.rules` қолданыңыз. Ережелерсіз чат жұмыс істемейді. Бұрынғы деректер өшірілмейді.
+4. Firebase Console → Firestore Database → Rules ішіне `firebase/firestore.rules` мазмұнын қойып, Publish басыңыз. Жаңа файлдарға Supabase жеке қоймасын [SUPABASE-SETUP-KK.md](SUPABASE-SETUP-KK.md) бойынша қосыңыз. Ережелерсіз чат жұмыс істемейді. Бұрынғы деректер өшірілмейді.
 5. `web` каталогынан `docker compose up -d --force-recreate web` орындаңыз. Браузерде Ctrl+Shift+R басыңыз.
 
 ## Админ аккаунтын Firebase Console арқылы құру (ең оңай жол)

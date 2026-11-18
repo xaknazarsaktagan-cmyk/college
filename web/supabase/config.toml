@@ -1,0 +1,5 @@
+project_id = "college"
+
+# Firebase JWTs are verified inside the function. Supabase Auth is not used.
+[functions.document-files]
+verify_jwt = false

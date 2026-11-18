@@ -1,7 +1,7 @@
 # Narxoz College — Firebase edition
 
-Бэкенд и база: **Firebase Authentication + Cloud Firestore + Cloud Storage**.
-Python API, SQL и локальная база в этой версии не используются. Docker остаётся:
+Бэкенд и база: **Firebase Authentication + Cloud Firestore + private Supabase Storage**.
+Python API и локальная база в этой версии не используются. Docker остаётся:
 Nginx обслуживает сайт на `http://localhost:8081`, браузер подключается к Firebase.
 
 ## 1. Подключение своего Firebase
@@ -9,32 +9,12 @@ Nginx обслуживает сайт на `http://localhost:8081`, браузе
 1. Создайте проект в Firebase Console и добавьте Web app.
 2. В **Authentication → Sign-in method** включите **Email/Password**.
 3. В Authentication → Settings → Authorized domains добавьте `localhost` и домен будущего сайта.
-4. Создайте **Cloud Firestore** (база `(default)`) и **Storage bucket**.
-   Cloud Storage может требовать подключённый billing/Blaze; актуальные условия
-   проверьте в своей консоли. Одного API key для работы всего проекта недостаточно.
-5. Скопируйте весь объект `firebaseConfig` в `frontend/js/firebase-config.js`:
-   `apiKey`, `authDomain`, `projectId`, `storageBucket`, `messagingSenderId`, `appId`.
-   Это публичная конфигурация Web app. Приватные ключи service account сюда не вставляются.
-6. Опубликуйте содержимое `firebase/firestore.rules` в Firestore → Rules,
-   а `firebase/storage.rules` — в Storage → Rules.
-   При запросе Firebase Console разрешите Storage rules обращаться к Firestore
-   (это нужно для проверки роли комиссии). Не включайте открытый test mode.
-7. Для просмотра загруженных файлов из браузера настройте CORS bucket:
+4. Создайте Cloud Firestore (база `(default)`). Для новых загрузок Firebase Storage и тариф Blaze **не нужны**.
+5. Сохраните публичную Firebase Web-конфигурацию в `frontend/js/firebase-config.js`.
+6. Опубликуйте обновлённый `firebase/firestore.rules` в Firestore → Rules.
+7. Настройте приватное файловое хранилище по [SUPABASE-SETUP-KK.md](SUPABASE-SETUP-KK.md): бесплатный Supabase-проект, SQL для приватного bucket, Edge Function и публичный URL в `frontend/js/document-storage-config.js`. Бесплатные лимиты конечны; фактическое развёртывание требует аккаунта владельца.
 
-   ```bash
-   gcloud storage buckets update gs://YOUR_STORAGE_BUCKET --cors-file=firebase/storage.cors.json
-   ```
-
-   При публикации сайта добавьте его HTTPS origin в `storage.cors.json` и примените файл снова.
-   Значение `YOUR_STORAGE_BUCKET` берётся из `firebaseConfig.storageBucket`.
-
-Правила также можно опубликовать через Firebase CLI:
-
-```bash
-npm ci
-npx firebase login
-npx firebase deploy --only firestore:rules,storage --project YOUR_PROJECT_ID
-```
+Сайт сохраняет вход через Firebase. Серверная функция проверяет Firebase JWT и читает роль/владельца из Firestore; новый Supabase-логин студентам не нужен. Service-role ключ остаётся только в функции.
 
 ## 2. Запуск через Docker
 
@@ -71,15 +51,14 @@ Compose-проекта, но не удалит тома. **Не использу
 
 - Регистрация, вход, сохранение сессии, выход, смена пароля — Firebase Auth.
 - Профиль, черновик/отправка заявления, статусы — Firestore.
-- Загрузка PDF/JPG/PNG до 5 МБ — Storage; описание и статус файла — Firestore.
+- Загрузка PDF/JPG/PNG до 5 МБ — приватный Supabase bucket; описание и статус файла — Firestore.
 - Комиссия: список заявлений, документы, принятие/возврат, решения, сообщения.
 - Поддержка: обращение студента, ответ комиссии, уведомления и отметка прочтения.
 - Публичный каталог программ/FAQ/дат включён в `frontend/js/catalog.js`:
   это статические справочные данные, не отдельная база; их можно редактировать без ключа.
 
 Security Rules защищают владельцев документов, роли и окончательные решения.
-Storage rules проверяют размер и MIME; проверка сигнатуры содержимого выполняется
-клиентом. Для серверного антивируса/модерации потребуется отдельная Firebase Function.
+Edge Function проверяет Firebase JWT, права владельца/админа, размер, MIME и сигнатуру файла. Серверный антивирус в эту сборку не входит.
 Админская статистика читает коллекции; для большого числа студентов нужны пагинация
 и агрегаты. Не храните реальные персональные данные до настройки своих правил и проекта.
 
@@ -105,7 +84,13 @@ npm run test:rules
 Пустая конфигурация разрешает просматривать публичную страницу, но не авторизацию:
 при попытке входа сайт явно показывает, что Firebase ещё не настроен.
 
-## Результаты проверки этой сборки
+## Проверка файлового хранилища
+
+`npm run test:files` — серверные тесты приватных файлов и подписи JWT (9 тестов).
+`python3 tests/supabase_browser.py` — браузерный тест Supabase-пути с подменёнными облачными службами; нужен статический сервер на 8086.
+Edge Function проверена Deno. Живой Supabase ещё требует настройки по инструкции.
+
+## Результаты предыдущих проверок
 
 - Docker Compose: единственный Nginx-контейнер запущен; `/healthz`, HTML и JS доступны.
 - Firebase Auth Emulator: регистрация, выход, вход и смена пароля прошли.

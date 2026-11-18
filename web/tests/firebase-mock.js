@@ -1,7 +1,7 @@
 // Browser integration double ONLY. Never imported by the production app.
 let state=JSON.parse(localStorage.getItem('firebase-test-state')||'{"accounts":{},"docs":{},"files":{},"uid":null}');
 const save=()=>localStorage.setItem('firebase-test-state',JSON.stringify(state));
-const auth={get currentUser(){return state.uid?{uid:state.uid,email:state.accounts[state.uid].email}:null;}};
+const auth={get currentUser(){return state.uid?{uid:state.uid,email:state.accounts[state.uid].email,getIdToken:async()=> 'mock-token-'+state.uid}:null;}};
 export const initializeApp=()=>({});export const getAuth=()=>auth;export const getFirestore=()=>({});export const getStorage=()=>({});
 export const browserLocalPersistence='local',browserSessionPersistence='session';
 export const setPersistence=async()=>{};

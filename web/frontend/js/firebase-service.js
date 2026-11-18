@@ -1,5 +1,6 @@
-import * as f from './vendor/firebase.js?v=experience-3';
-import catalog from './catalog.js?v=experience-3';
+import {isSupabase,privateFileRequest} from './private-files.js?v=private-files-1';
+import * as f from './vendor/firebase.js?v=private-files-1';
+import catalog from './catalog.js?v=private-files-1';
 let auth, db, storage, ready;
 const now = () => new Date().toISOString();
 const fail = (message, status=400) => { const e = new Error(message); e.status=status; throw e; };
@@ -8,8 +9,8 @@ const defaults = () => ({submitted:false,status:'draft',draft:{},number:null});
 function init() {
   if (ready) return ready;
   const config = window.FIREBASE_CONFIG || {};
-  if (!config.apiKey || !config.projectId || !config.appId || !config.storageBucket) {
-    fail('Firebase бапталмаған. js/firebase-config.js файлын толтырып, Authentication, Firestore және Storage ережелерін қосыңыз.',503);
+  if (!config.apiKey || !config.projectId || !config.appId) {
+    fail('Firebase бапталмаған. js/firebase-config.js файлын толтырып, Authentication және Firestore ережелерін қосыңыз.',503);
   }
   const app=f.initializeApp(config);
   auth=f.getAuth(app); db=f.getFirestore(app); storage=f.getStorage(app);
@@ -60,14 +61,24 @@ async function upload(id,file,opts={}) {
   const signatures={'application/pdf':[37,80,68,70,45],'image/jpeg':[255,216,255],'image/png':[137,80,78,71,13,10,26,10]};
   if(!signatures[mime].every((b,i)=>bytes[i]===b))fail('Файл мазмұны форматқа сәйкес емес');
   const ext={'application/pdf':'pdf','image/jpeg':'jpg','image/png':'png'}[mime];
-  const path=`documents/${u.id}/${id}/${crypto.randomUUID()}.${ext}`;
+  let path=`documents/${u.id}/${id}/${crypto.randomUUID()}.${ext}`;
   if(file.name.length>255)fail('Файл атауы тым ұзын (255 таңбаға дейін)');
-  const task=f.uploadBytesResumable(f.ref(storage,path),file,{contentType:mime});
-  opts.onCancelReady?.(()=>task.cancel());
-  await new Promise((resolve,reject)=>task.on('state_changed',snapshot=>opts.onProgress?.(Math.round(snapshot.bytesTransferred/Math.max(snapshot.totalBytes,1)*100)),reject,resolve));
-  try { await f.updateDoc(d('documents',id),{stored_name:path,file:file.name,status:'review',reason:null}); }
-  catch(e) { await f.deleteObject(f.ref(storage,path)).catch(()=>{});throw e; }
-  if(doc.stored_name) await f.deleteObject(f.ref(storage,doc.stored_name)).catch(()=>{});
+  const provider=isSupabase()?'supabase':'firebase';
+  if(provider==='supabase') {
+    const result=await privateFileRequest(auth.currentUser,{method:'POST',id,file,opts:{...opts,mime}});
+    path=result?.path;
+    if(typeof path!=='string'||!path.startsWith(`documents/${u.id}/${id}/`))fail('Қойма жауабы қате',502);
+  } else {
+    const task=f.uploadBytesResumable(f.ref(storage,path),file,{contentType:mime});
+    opts.onCancelReady?.(()=>task.cancel());
+    await new Promise((resolve,reject)=>task.on('state_changed',snapshot=>opts.onProgress?.(Math.round(snapshot.bytesTransferred/Math.max(snapshot.totalBytes,1)*100)),reject,resolve));
+  }
+  const remove=async(path,provider)=>provider==='supabase'
+    ? privateFileRequest(auth.currentUser,{method:'DELETE',id,path})
+    : f.deleteObject(f.ref(storage,path));
+  try { await f.updateDoc(d('documents',id),{stored_name:path,file:file.name,status:'review',reason:null,storage_provider:provider}); }
+  catch(e) { await remove(path,provider).catch(()=>{});throw e; }
+  if(doc.stored_name) await remove(doc.stored_name,doc.storage_provider||'firebase').catch(()=>{});
   return {ok:true};
 }
 export async function request(path, opts={}) {
@@ -121,7 +132,10 @@ export async function request(path, opts={}) {
   if((match=path.match(/^\/api\/documents\/([^/]+)\/file$/))) {
     const u=await me(),value=await read('documents',match[1]);if(!value || (!value.stored_name))fail('Файл жоқ',404);
     if(u.role!=='admin'&&value.user_id!==u.id)fail('Рұқсат жоқ',403);
-    return f.getBlob(f.ref(storage,value.stored_name));
+    const blob=value.storage_provider==='supabase'
+      ? await privateFileRequest(auth.currentUser,{id:match[1]})
+      : await f.getBlob(f.ref(storage,value.stored_name));
+    blob.name=value.file||'document';return blob;
   }
   if(path==='/api/notes/read-all') {
     const u=await me();const notes=await list('notes',u.id);for(let i=0;i<notes.length;i+=400){const batch=f.writeBatch(db);notes.slice(i,i+400).forEach(n=>batch.update(d('notes',n.id),{read:true}));await batch.commit();}return {ok:true};

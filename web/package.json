@@ -4,7 +4,9 @@
   "scripts": {
     "build:sdk": "esbuild firebase/sdk.js --bundle --format=esm --minify --outfile=frontend/js/vendor/firebase.js",
     "test:rules": "firebase emulators:exec --project demo-narxoz --only auth,firestore,storage \"node --test tests/firebase.test.mjs\"",
-    "test:auth": "firebase emulators:exec --project demo-narxoz --only auth \"node --test tests/auth.test.mjs\""
+    "test:auth": "firebase emulators:exec --project demo-narxoz --only auth \"node --test tests/auth.test.mjs\"",
+    "test:files": "node tests/private-files.test.mjs",
+    "build:files-function": "node tools/build-files-function.mjs"
   },
   "dependencies": {
     "firebase": "11.10.0"
@@ -13,6 +15,8 @@
     "@firebase/rules-unit-testing": "4.0.1",
     "esbuild": "0.25.5",
     "firebase-admin": "13.4.0",
-    "firebase-tools": "14.7.0"
-  }
+    "firebase-tools": "14.7.0",
+    "jose": "6.2.13"
+  },
+  "type": "module"
 }
